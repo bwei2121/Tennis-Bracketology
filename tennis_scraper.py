@@ -1,16 +1,10 @@
-from typing import List
 import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 
-@dataclass
-class PlayerID:
-  id: int
-  name: str
-
 # Gets the html on the URL page
-# Returns str: page content on URL given by BeautifulSoup library
-def getPage() -> str:
+# Returns page content on URL given by BeautifulSoup library
+def getPage():
   URL = "https://www.tennisabstract.com/current/2023ATPCincinnati.html" # random url, eventually will let user choose a specific tournament
   headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
   page = requests.get(URL, headers=headers)
@@ -18,9 +12,9 @@ def getPage() -> str:
   return pageContent
 
 # Find the specific HTML in the page content that lists the players in the tournament
-# playerContent: the HTML page content
-# Returns str: HTML that contains the players in the tournament
-def findPlayerList(playerContent: str) -> str:
+# Parameter playerContent: the HTML page content
+# Returns HTML that contains the players in the tournament
+def findPlayerList(playerContent):
   roundTypes=['var proj128', 'var proj64', 'var proj32', 'var proj16', 'var proj8', 'var proj4', 'var proj2', 'var projCurrent']
   beginIndex=0
   endIndex=0
@@ -38,11 +32,11 @@ def findPlayerList(playerContent: str) -> str:
   return playersHTML
 
 # Creates a player list based on HTML content of players in tournament
-# playersSoup: HTML player content created by BeautifulSoup library
-# Returns List[PlayerID]: list of players and ids for players
-def getPlayerList(playersSoup: BeautifulSoup) -> List[PlayerID]:
+# Parameter playersSoup: HTML player content created by BeautifulSoup library
+# Returns list of players and ids for players
+def getPlayerList(playersSoup):
   players=playersSoup.table.find_all('td')
-  playerList: List[PlayerID]=[]
+  playerList=[]
   playerId=0
   for playerHTML in players:
     if(playerHTML.a): 
@@ -51,20 +45,31 @@ def getPlayerList(playersSoup: BeautifulSoup) -> List[PlayerID]:
         player+=playerHTML.contents[0]
         player+=' '
       player+=playerHTML.find('a').contents[0]
-      playerList.append({"id": playerId, "name": player})
+      playerList.append({"id": playerId, "name": str(player)})
       playerId+=1
     elif(playerHTML.text=="Bye"):
       playerList.append(None)
   return playerList
 
+# Gets the tournament name from the tournamnt URL page
+# Parameter soup: HTML of tournament URL page 
+# Returns tournament title
+def getTournamentTitle(htmlPage):
+  content=htmlPage.head.title.text
+  beginIndex=content.find(":")
+  endIndex=content.find("Results")
+  title=content[beginIndex+2:endIndex-1]
+  return title
+
 # Get players in the tournament from tournament HTML page 
-# Returns List[PlayerID]: list of players and ids for players
-def getBracketInfo() -> List[PlayerID]:
+# Returns list of players and ids for players
+def getBracketInfo():
   content=getPage()
+  tournamentTitle=getTournamentTitle(content)
   playersContent=str(content.head.find_all('script')[1].contents[0])
   playersHTML=findPlayerList(playersContent)
   playersSoup = BeautifulSoup(playersHTML, "html.parser")
   playerList=getPlayerList(playersSoup)
-  return playerList
+  return (tournamentTitle, playerList)
 
 getBracketInfo()

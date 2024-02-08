@@ -19,6 +19,10 @@
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
     "axios": "^1.6.7",
+    "brackets-manager": "^1.6.4",
+    "brackets-memory-db": "^1.0.4",
+    "brackets-model": "^1.5.0",
+    "brackets-viewer": "^1.6.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"

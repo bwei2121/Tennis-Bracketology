@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+
+// remove bracket-viewers seeds to add custom seeds from backend
+.brackets-viewer .participant .name>span {
+  display: none;
+}
+
+// widen match boxes to show full player names
+.brackets-viewer .match {
+  width: 17em;
+}

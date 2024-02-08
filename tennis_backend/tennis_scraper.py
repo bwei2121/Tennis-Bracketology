@@ -71,5 +71,3 @@ def getBracketInfo():
   playersSoup = BeautifulSoup(playersHTML, "html.parser")
   playerList=getPlayerList(playersSoup)
   return (tournamentTitle, playerList)
-
-getBracketInfo()

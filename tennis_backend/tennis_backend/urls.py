@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from tennis_bracket.views import BracketInformation
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('bracket', BracketInformation.as_view())
 ]

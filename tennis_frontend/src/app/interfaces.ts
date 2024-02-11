@@ -1,4 +1,4 @@
-import { Match, MatchGame, Participant, Stage, StageType } from "brackets-model";
+import { Match, MatchGame, Participant, Result, Stage, StageType } from "brackets-model";
 
 export interface Dataset {
   title: string;
@@ -33,5 +33,5 @@ export interface MatchInfo {
 
 export interface MatchResult {
   score: number;
-  result?: string;
+  result?: Result;
 }

@@ -9,3 +9,8 @@
 .brackets-viewer .match {
   width: 17em;
 }
+
+// space out scores to look like multiple scores
+.brackets-viewer .participant .result {
+  letter-spacing: 0.2em;
+}

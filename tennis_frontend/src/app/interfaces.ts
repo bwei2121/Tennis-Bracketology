@@ -21,4 +21,17 @@ export interface BracketManagerData {
 export interface BackendData {
   title: string;
   roster: Roster[];
+  results: MatchInfo[];
+}
+
+export interface MatchInfo {
+  id1: number;
+  id2: number;
+  opponent1: MatchResult;
+  opponent2: MatchResult;
+}
+
+export interface MatchResult {
+  score: number;
+  result?: string;
 }

@@ -6,10 +6,11 @@ from tennis_scraper import getBracketInfo
 
 # Create your views here.
 class BracketInformation(APIView):
-  # Send initial matches of bracket to frontend
+  # Send all matches results of bracket to frontend
   def get(self, request):
     bracketData=getBracketInfo()
     title=bracketData[0]
     roster=bracketData[1]
-    data={"title": title, "roster": roster}
+    results=bracketData[2]
+    data={"title": title, "roster": roster, "results": results}
     return HttpResponse(json.dumps(data))

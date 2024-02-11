@@ -22,6 +22,7 @@ export class BracketComponent implements OnInit {
     const bracketDataset: BackendData=await this.getBracketData();
     const title: string=bracketDataset['title'];
     const roster: Roster[]=bracketDataset['roster'];
+    console.log(bracketDataset['results'])
     this.processBracketData(this.createDataForBracketViewer(roster, title)).then((data: BracketManagerData) => window.bracketsViewer.render(data));
   }
 

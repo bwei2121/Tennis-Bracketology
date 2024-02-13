@@ -65,6 +65,9 @@ export class BracketComponent implements OnInit {
       },
     });
   
+    // add images for players
+    await window.bracketsViewer.setParticipantImages(this.createDataForPictures(dataset.roster));
+
     await this.updateMatches(matchResults, manager); 
     
     const data = await manager.get.stageData(0);
@@ -147,5 +150,42 @@ export class BracketComponent implements OnInit {
            (match.opponent1?.id==playerMatch.id1 && match.opponent2?.id==playerMatch.id2 || 
            match.opponent1?.id==playerMatch.id2 && match.opponent2?.id==playerMatch.id1) && 
            playerMatch.opponent1.score!=null && playerMatch.opponent2.score!=null);
+  }
+
+  /**
+   * Creates list of player pictures to be used in tennis bracket
+   * @param roster: list of players and corresponding ids 
+   * @returns list of player ids and corresponding url images
+   */
+  createDataForPictures(roster: Roster[]) {
+    const imageData=[];
+    for(const player of roster){
+      if(player!=null && player.id!=null && player.name!=null){
+        imageData.push({
+          participantId: player.id,
+          imageUrl: this.getImageUrl(player.name)
+        });
+      }
+    }
+    return imageData;
+  }
+  
+  /**
+   * Get the url of player photo using the player name
+   * @param name: player name 
+   * @returns string: url of player photo
+   */
+  getImageUrl(name: string): string {
+    let nameList: string[]=name.split(" ");
+    if(nameList[0].includes("(") && nameList[0].includes(")")){ // check if name has seeding included
+      nameList.splice(0, 1);
+    }
+    for(let i=0; i<nameList.length; i++){
+      const name=nameList[i]
+      const newName=name.charAt(0).toLowerCase().concat(name.slice(1));
+      nameList[i]=newName;
+    }
+    const nameUrl=nameList.join("_");
+    return `https://www.tennisabstract.com/photos/${nameUrl}-sirobi.jpg`;
   }
 }

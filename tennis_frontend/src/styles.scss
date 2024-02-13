@@ -13,4 +13,11 @@
 // space out scores to look like multiple scores
 .brackets-viewer .participant .result {
   letter-spacing: 0.2em;
+  line-height: 1.8em; // alignment needed due to player images
+}
+
+// for player images
+.brackets-viewer .participant .name>img {
+  width: 1em;
+  height: 2em;
 }

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
-import { BracketComponent } from './bracket/bracket.component';
+import { ViewBracketComponent } from './view-bracket/view-bracket.component';
+import { CreateBracketComponent } from './create-bracket/create-bracket.component';
 
 export const routes: Routes = [
-  { path: 'bracket', component: BracketComponent },
+  { path: 'view', component: ViewBracketComponent },
+  { path: 'create', component: CreateBracketComponent }
 ];

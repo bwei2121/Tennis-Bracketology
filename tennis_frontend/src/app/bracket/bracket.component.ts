@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef } from "@angular/core";
 import axios from 'axios';
 import { BracketsManager } from "brackets-manager";
 import { getNearestPowerOfTwo } from "brackets-manager/dist/helpers";
@@ -13,8 +13,9 @@ import { Match } from "brackets-model";
   styleUrls: ['bracket.component.scss'],
   imports: []
 })
-export class BracketComponent implements OnInit {
+export class BracketComponent implements OnInit, AfterViewChecked {
   TOURNAMENT_ID: number = 0;
+  @ViewChild('bracket') bracket!: ElementRef;
 
   /**
    * Gets bracket data from backend and process that data using the brackets-manager and brackets-viewer libraries
@@ -27,6 +28,13 @@ export class BracketComponent implements OnInit {
     this.processBracketData(this.createDataForBracketViewer(roster, title), results).then((data: BracketManagerData) => window.bracketsViewer.render(data));
   }
 
+  /**
+   * Traverse through DOM and add onerror attribute onto img tags to hide player images that could not be found
+   */
+  ngAfterViewChecked(){
+    this.hideErrorPlayerImages();
+  }
+  
   /**
    * Gets bracket data from backend using axios
    * @returns Promise<BackendData>: Returns bracket data from backend
@@ -187,5 +195,39 @@ export class BracketComponent implements OnInit {
     }
     const nameUrl=nameList.join("_");
     return `https://www.tennisabstract.com/photos/${nameUrl}-sirobi.jpg`;
+  }
+
+  /**
+   * Finds img tags in the html and add onerror attribute to img tags
+   */
+  hideErrorPlayerImages() {
+    const bracketHTML=this.bracket.nativeElement.children[0];
+    if(bracketHTML){
+      const roundsHTML=bracketHTML.children[1].children[0].children;
+      for(const round of roundsHTML){
+        for(const match of round.children){
+          if(match.children.length!=0){
+            this.addOnErrorAttribute((match as HTMLElement), 1);
+            this.addOnErrorAttribute((match as HTMLElement), 2);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Adds onerror attribute to img tags that hide player images that do not exist
+   * @param match: HTML element that contains information about a match 
+   * @param index: index number that represents the first player or second player in the match 
+   * @returns void: all img tags will have onerror attribute
+   */
+  addOnErrorAttribute(match: HTMLElement, index: number): void {
+    const player=match.children[0].children[index].children[0];
+    if(player.children.length==1){
+      (player.children[0] as HTMLImageElement).setAttribute('onerror', "this.style.visibility = 'hidden'");
+    }
+    else if(player.children.length==2){ 
+      (player.children[1] as HTMLImageElement).setAttribute('onerror', "this.style.visibility = 'hidden'");
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef } from "@angular/core";
+import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, Input } from "@angular/core";
 import axios from 'axios';
 import { BracketsManager } from "brackets-manager";
 import { getNearestPowerOfTwo } from "brackets-manager/dist/helpers";
@@ -14,6 +14,7 @@ import { Match } from "brackets-model";
   imports: []
 })
 export class BracketComponent implements OnInit, AfterViewChecked {
+  @Input() type: string = '';
   TOURNAMENT_ID: number = 0;
   @ViewChild('bracket') bracket!: ElementRef;
 
@@ -76,7 +77,9 @@ export class BracketComponent implements OnInit, AfterViewChecked {
     // add images for players
     await window.bracketsViewer.setParticipantImages(this.createDataForPictures(dataset.roster));
 
-    await this.updateMatches(matchResults, manager); 
+    if(this.type=='view'){
+      await this.updateMatches(matchResults, manager); 
+    }
     
     const data = await manager.get.stageData(0);
   

@@ -35,3 +35,11 @@ export interface MatchResult {
   score: number;
   result?: Result;
 }
+
+export interface DialogData {
+  winner: number;
+  loser: number;
+  player1: Roster;
+  player2: Roster;
+  playerWinner: string;
+}

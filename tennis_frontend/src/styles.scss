@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
+// angular popups works normally with this import
+@import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
+
 // remove bracket-viewers seeds to add custom seeds from backend
 .brackets-viewer .participant .name>span {
   display: none;

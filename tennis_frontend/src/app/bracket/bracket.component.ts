@@ -1,10 +1,12 @@
-import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, Input } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, Input, Renderer2 } from "@angular/core";
 import axios from 'axios';
 import { BracketsManager } from "brackets-manager";
 import { getNearestPowerOfTwo } from "brackets-manager/dist/helpers";
-import { InMemoryDatabase } from "brackets-memory-db";
-import { BackendData, BracketManagerData, Dataset, MatchInfo, Roster } from "../interfaces";
-import { Match } from "brackets-model";
+import { InMemoryDatabase } from '../storage/memory';
+import { BackendData, BracketManagerData, Dataset, DialogData, MatchInfo, MatchResult, ProcessData, Roster } from "../interfaces";
+import { Id, Match, Result } from "brackets-model";
+import { MatDialog } from "@angular/material/dialog";
+import { MatchOverviewDialog } from "../dialog/dialog.components";
 
 @Component({
   standalone: true,
@@ -13,27 +15,27 @@ import { Match } from "brackets-model";
   styleUrls: ['bracket.component.scss'],
   imports: []
 })
-export class BracketComponent implements OnInit, AfterViewChecked {
+export class BracketComponent implements OnInit {
   @Input() type: string = '';
   TOURNAMENT_ID: number = 0;
+  STAGE_ID: number = 0;
   @ViewChild('bracket') bracket!: ElementRef;
+
+  constructor(private dialog: MatDialog, private renderer: Renderer2) {}
 
   /**
    * Gets bracket data from backend and process that data using the brackets-manager and brackets-viewer libraries
+   * Traverse through DOM and add onerror attribute onto img tags to hide player images that could not be found
    */
   async ngOnInit(): Promise<void> {
     const bracketDataset: BackendData=await this.getBracketData();
     const title: string=bracketDataset['title'];
     const roster: Roster[]=bracketDataset['roster'];
     const results: MatchInfo[]=bracketDataset['results'];
-    this.processBracketData(this.createDataForBracketViewer(roster, title), results).then((data: BracketManagerData) => window.bracketsViewer.render(data));
-  }
-
-  /**
-   * Traverse through DOM and add onerror attribute onto img tags to hide player images that could not be found
-   */
-  ngAfterViewChecked(){
-    this.hideErrorPlayerImages();
+    this.processBracketData(this.createDataForBracketViewer(roster, title), results).then(async (data: ProcessData) => {
+      window.bracketsViewer.render(data.managerData);
+      this.addHTMLAttributes();
+    });
   }
   
   /**
@@ -48,9 +50,10 @@ export class BracketComponent implements OnInit, AfterViewChecked {
   /**
    * Create a tennis bracket using brackets-manager library and formatting data that can be usable by brackets-viewer library
    * @param dataset: backend data representing tennis bracket data for a tournament
+   * @param matchResults: match information to update tennis bracket after initial matchups
    * @returns Promise<BracketManagerData>: data format usable by brackets-viewer library
    */
-  async processBracketData(dataset: Dataset, matchResults: MatchInfo[]): Promise<BracketManagerData> {
+  async processBracketData(dataset: Dataset, matchResults: MatchInfo[]): Promise<ProcessData> {
     const db = new InMemoryDatabase();
     const manager = new BracketsManager(db);
   
@@ -74,6 +77,11 @@ export class BracketComponent implements OnInit, AfterViewChecked {
       },
     });
   
+    // allow user to predict matches
+    if(this.type=='create'){
+      window.bracketsViewer.onMatchClicked = async (match: Match) => await this.openDialog(match, dataset.roster, this.dialog, manager);
+    }
+    
     // add images for players
     await window.bracketsViewer.setParticipantImages(this.createDataForPictures(dataset.roster));
 
@@ -81,13 +89,18 @@ export class BracketComponent implements OnInit, AfterViewChecked {
       await this.updateMatches(matchResults, manager); 
     }
     
-    const data = await manager.get.stageData(0);
-  
-    return {
+    const data = await manager.get.stageData(this.STAGE_ID);
+    
+    const managerData: BracketManagerData = {
       stages: data.stage,
       matches: data.match,
       matchGames: data.match_game,
       participants: data.participant,
+    };
+
+    return {
+      managerData: managerData,
+      manager: manager,
     };
   }
 
@@ -130,7 +143,7 @@ export class BracketComponent implements OnInit, AfterViewChecked {
    * @returns void: matches will be updated with the list of matches in matchResults
    */
   async updateMatches(matchResults: MatchInfo[], manager: BracketsManager) {
-    let matchesToUpdate: Match[]=await manager.get.currentMatches(0);
+    let matchesToUpdate: Match[]=await manager.get.currentMatches(this.STAGE_ID);
     let prevMatchesToUpdate: Match[]=[];
     while(JSON.stringify(prevMatchesToUpdate)!=JSON.stringify(matchesToUpdate)){ // there is still a match to update
       for(const match of matchesToUpdate) {
@@ -146,7 +159,7 @@ export class BracketComponent implements OnInit, AfterViewChecked {
         }
       }
       prevMatchesToUpdate=matchesToUpdate;
-      matchesToUpdate=await manager.get.currentMatches(0);
+      matchesToUpdate=await manager.get.currentMatches(this.STAGE_ID);
     }
   }
 
@@ -201,21 +214,35 @@ export class BracketComponent implements OnInit, AfterViewChecked {
   }
 
   /**
-   * Finds img tags in the html and add onerror attribute to img tags
+   * Finds all img tags in the html to add onerror attributes or finds specific match html of interest
+   * if given matchId parameter
+   * @param matchId: optional parameter specifying which match to update
+   * @returns HTMLDivElement | null: returns html of match in interest or null 
    */
-  hideErrorPlayerImages() {
-    const bracketHTML=this.bracket.nativeElement.children[0];
+  addHTMLAttributes(matchId?: string): HTMLDivElement | null {
+    const bracketHTML: HTMLElement=this.bracket.nativeElement.children[0];
     if(bracketHTML){
-      const roundsHTML=bracketHTML.children[1].children[0].children;
-      for(const round of roundsHTML){
-        for(const match of round.children){
-          if(match.children.length!=0){
-            this.addOnErrorAttribute((match as HTMLElement), 1);
-            this.addOnErrorAttribute((match as HTMLElement), 2);
+      const roundsHTML: HTMLCollection=bracketHTML.children[1].children[0].children;
+      for(let roundIndex=0; roundIndex<roundsHTML.length; roundIndex++){
+        const round: HTMLCollection | undefined=roundsHTML.item(roundIndex)?.children;
+        if(round){
+          for(let matchIndex=0; matchIndex<round.length; matchIndex++){
+            const match: Element | null=round.item(matchIndex);
+            if(match && match.children.length!=0){
+              if(matchId){
+                const dataMatchId=(match as HTMLDivElement).dataset["matchId"]
+                if(dataMatchId && dataMatchId==matchId){
+                  return (match as HTMLDivElement)
+                }
+              }
+              this.addOnErrorAttribute((match as HTMLElement), 1);
+              this.addOnErrorAttribute((match as HTMLElement), 2);
+            }
           }
         }
       }
     }
+    return null;
   }
 
   /**
@@ -227,10 +254,141 @@ export class BracketComponent implements OnInit, AfterViewChecked {
   addOnErrorAttribute(match: HTMLElement, index: number): void {
     const player=match.children[0].children[index].children[0];
     if(player.children.length==1){
-      (player.children[0] as HTMLImageElement).setAttribute('onerror', "this.style.visibility = 'hidden'");
+      this.renderer.setAttribute(player.children[0], 'onerror', "this.style.visibility = 'hidden'");
     }
     else if(player.children.length==2){ 
-      (player.children[1] as HTMLImageElement).setAttribute('onerror', "this.style.visibility = 'hidden'");
+      this.renderer.setAttribute(player.children[1], 'onerror', "this.style.visibility = 'hidden'");
     }
+  }
+
+  /**
+   * Opens dialog to allow user to predict and updates bracket based on prediction
+   * @param match: match in bracket to predict
+   * @param roster: roster of players in bracket 
+   * @param dialog: dialog to show to user for predicting the match 
+   * @param manager: BracketsManager object that stores the bracket 
+   * @returns Promise<void>: updates bracket if user makes prediction on match
+   */
+  async openDialog(match: Match, roster: Roster[], dialog: MatDialog, manager: BracketsManager): Promise<void> {
+    if(match.status!=4 && match.status!=5 && match.opponent1?.id!=null && match.opponent2?.id!=null){
+      const player1=this.findPlayerFromID(match.opponent1.id, roster);
+      const player2=this.findPlayerFromID(match.opponent2.id, roster);
+  
+      const dialogRef = dialog.open(MatchOverviewDialog, {
+        data: {player1: player1, player2: player2}
+      });
+
+      dialogRef.afterClosed().subscribe(async (result: DialogData) => {
+        if(result){
+          if(result.playerWinner && player1.name==result.playerWinner){
+            await this.updateMatchInBracket(result, 1, manager, match);
+            await this.updateMatchonFrontend(match, manager, player1, result, 1, 2);
+          }
+          else{
+            await this.updateMatchInBracket(result, 2, manager, match);
+            await this.updateMatchonFrontend(match, manager, player2, result, 2, 1);
+          }
+        }
+      });
+    }
+  }
+
+  /**
+   * Updates the match in BracketsManager and BracketsViewer objects
+   * @param result: result from dialog that are used to update bracket 
+   * @param playerWinner: 1 or 2, representing opponent1 or opponent 2 winning respectively 
+   * @param manager: BracketsManager object that stores bracket 
+   * @param match: match to update
+   * @returns Promise<void>: promises to update match in BracketsManager and BracketsViewer objects
+   */
+  async updateMatchInBracket(result: DialogData, playerWinner: number, manager: BracketsManager, match: Match): Promise<void> {
+    const resultMatch: Result='win';
+    // ensures avoiding situations where tennis scores where loser wins first set
+    const winnerManager: MatchResult={ score: Number(`1${result.winner}`), result: resultMatch };
+    const winnerViewer: MatchResult={ score: result.winner, result: resultMatch };
+    const loser: MatchResult={ score: result.loser };
+    // playerWinner==1
+    let opponent1Manager: MatchResult=winnerManager;
+    let opponent2Manager: MatchResult=loser;
+    let opponent1Viewer: MatchResult=winnerViewer;
+    let opponent2Viewer: MatchResult=loser;
+    if(playerWinner==2){
+      opponent1Manager=loser;
+      opponent2Manager=winnerManager;
+      opponent1Viewer=loser;
+      opponent2Viewer=winnerViewer;
+    }
+    await manager.update.match({
+      id: match.id, 
+      status: 4,
+      opponent1: opponent1Manager,
+      opponent2: opponent2Manager,
+    });
+    await window.bracketsViewer.updateMatch({
+      id: match.id, 
+      status: 4,
+      opponent1: opponent1Viewer,
+      opponent2: opponent2Viewer,
+    });
+  }
+
+  /**
+   * Updates relevant matches after match prediction on the frontend of tennis bracket
+   * @param match: match to update 
+   * @param manager: BracketsManager object used to find next match for winning player 
+   * @param playerWinner: information of winning player 
+   * @param result: results from dialog that user used for prediction 
+   * @param winPlayerNumber: 1 or 2, represent winning player 
+   * @param losePlayerNumber: 1 or 2, represent losing player 
+   */
+  async updateMatchonFrontend(match: Match, manager: BracketsManager, playerWinner: Roster, result: DialogData, winPlayerNumber: number, losePlayerNumber: number): Promise<void> {
+    // current predicted match to update
+    const matchContainer = this.addHTMLAttributes(`${match.id}`);
+    console.log(matchContainer)
+    if(matchContainer){
+      console.log(matchContainer.children[0].children[1])
+      const result1 = matchContainer.children[0].children[winPlayerNumber];
+      if(result1){
+        result1.classList.add('win');
+      }
+      const result2 = matchContainer.children[0].children[losePlayerNumber];
+      if(result2){
+        result2.classList.add('loss');
+      }
+      const nextMatch: Match = (await manager.find.nextMatches(match.id, playerWinner.id))[0];
+      // next match of player winner to update
+      const nextMatchContainer = this.addHTMLAttributes(`${nextMatch.id}`);
+      if(nextMatchContainer){
+        if(nextMatch.opponent1?.id==playerWinner.id){
+          const name1 = nextMatchContainer.children[0].children[1].children[0];
+          if (name1){
+            name1.innerHTML = `<img src="${this.getImageUrl(playerWinner.name)}" onerror="this.style.visibility = 'hidden'">${result.playerWinner}`;
+          }
+        }
+        else{
+          const name2 = nextMatchContainer.children[0].children[2].children[0];
+          if (name2){
+            name2.innerHTML = `<img src="${this.getImageUrl(playerWinner.name)}" onerror="this.style.visibility = 'hidden'">${result.playerWinner}`;
+          } 
+        }
+      }
+    }
+  }
+
+  /**
+   * Gets the player name from the playerID given
+   * @param playerID: id of player, might be null 
+   * @param roster: roster of players and corresponding ids 
+   * @returns Roster: player id and player name of interest
+   */
+  findPlayerFromID(playerID: Id | null, roster: Roster[]): Roster {
+    if(playerID!=null){
+      for(const player of roster){
+        if(player!=null && player.id==playerID){
+          return player;
+        }
+      }
+    }
+    return {id: -1, name: ""}; // playerID not found
   }
 }

@@ -1,3 +1,4 @@
+import { BracketsManager } from "brackets-manager";
 import { Match, MatchGame, Participant, Result, Stage, StageType } from "brackets-model";
 
 export interface Dataset {
@@ -16,6 +17,11 @@ export interface BracketManagerData {
   matches: Match[];
   matchGames: MatchGame[];
   participants: Participant[];
+}
+
+export interface ProcessData {
+  managerData: BracketManagerData,
+  manager: BracketsManager
 }
 
 export interface BackendData {

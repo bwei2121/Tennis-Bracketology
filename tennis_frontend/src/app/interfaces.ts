@@ -49,3 +49,8 @@ export interface DialogData {
   player2: Roster;
   playerWinner: string;
 }
+
+export interface Tournament {
+  title: string; 
+  url: string;
+}

@@ -24,3 +24,16 @@
   width: 1em;
   height: 2em;
 }
+
+// remove arrow from header of table when choosing tournaments
+.mat-sort-header-arrow {
+  display: none !important;
+  width: 0% !important;
+  height: 0% !important;
+}
+
+// table header "tournament title" is centered on choosing tournament page
+.mat-sort-header-content {
+  width: 100%;
+  justify-content: center;
+}

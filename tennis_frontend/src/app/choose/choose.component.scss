@@ -1,0 +1,20 @@
+.mat-column-title, .noMatch {
+  text-align: center;
+}
+
+.mat-mdc-form-field {
+  width: 60%;
+}
+
+.loading {
+  text-align: center;
+}
+
+.top {
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  top: 0%;
+  background-color: white;
+  z-index: 1;
+}

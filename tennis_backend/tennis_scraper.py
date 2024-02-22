@@ -1,13 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
+import datetime
 
-# Gets the html on the URL page
+# Gets the html on the URL page chosen by user
 # Returns page content on URL given by BeautifulSoup library
-def getPage():
-  URL = "https://www.tennisabstract.com/current/2023ATPCincinnati.html" # random url, eventually will let user choose a specific tournament
+def getPage(url):
   headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-  page = requests.get(URL, headers=headers)
+  page = requests.get(url, headers=headers)
   pageContent = BeautifulSoup(page.content, "html.parser")
   return pageContent
 
@@ -221,10 +221,10 @@ def getCompletedMatchResults(playerList, content):
   matchList=getCompletedMatchList(matchContent, playerList)
   return matchList
 
-# Get players in the tournament from tournament HTML page 
+# Get players in the tournament from tournament HTML page chosen by user
 # Returns list of players and ids for players
-def getBracketInfo():
-  content=getPage()
+def getBracketInfo(url):
+  content=getPage(url)
   tournamentTitle=getTournamentTitle(content)
   playersContent=str(content.head.find_all('script')[1].contents[0])
   playersHTML=findPlayerList(playersContent)
@@ -232,3 +232,44 @@ def getBracketInfo():
   playerList=getPlayerList(playersSoup)
   matchList=getCompletedMatchResults(playerList, playersContent)
   return (tournamentTitle, playerList, matchList)
+
+# Get all tournament brackets that are available to view from tennisabstract.com
+# Returns array of tournament names and their urls
+def getAllTournaments():
+  URL = "https://www.tennisabstract.com/current/"
+  headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+  page = requests.get(URL, headers=headers)
+  content = BeautifulSoup(page.content, "html.parser")
+  tournaments=[]
+  for row in content.body.find('table').find_all('tr'):
+    for rowData in row.find_all('td'):
+      if(rowData.a): # check for html tag 'a'
+        url=rowData.contents[0].get('href')
+        if(not (url.startswith('2022') or url=='favicon.ico' or url=='/')):
+          title=parsedTitle(url.replace('.html', ''))
+          tournaments.append({'title': title, 'url': url})
+  return tournaments
+
+# Converts title into a readable title for user
+# Parameter title: tournament name but less readable for user
+# Returns title that is readable by user
+def parsedTitle(title):
+  keywords=['2023', '2024', 'ATP', 'WTA', 'US']
+  parseIndexes=[]
+  for key in keywords:
+    index=title.find(key)
+    if(index!=-1):
+      parseIndexes.append(index+len(key))
+  startIndex=parseIndexes[-1]+1 # each title has at least one keyword so there will be at least one index in parseIndexes
+  for i in range(startIndex, len(title)):
+    if((title[i].isupper() or title[i].isnumeric()) and (i-1>=0 and title[i-1].isalpha()) or (i-1>=0 and title[i-1].isnumeric() and title[i].isalpha())):
+      parseIndexes.append(i)
+  words=[]
+  for i in range(len(parseIndexes)):
+    startIndex=0
+    endIndex=parseIndexes[i]
+    if(i!=0):
+      startIndex=parseIndexes[i-1]
+    words.append(title[startIndex:endIndex])
+  words.append(title[parseIndexes[len(parseIndexes)-1]:len(title)])
+  return ' '.join(words)

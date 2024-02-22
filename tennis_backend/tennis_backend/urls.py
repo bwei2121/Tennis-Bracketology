@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from tennis_bracket.views import BracketInformation
+from tennis_bracket.views import BracketInformation, TournamentsData
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('bracket', BracketInformation.as_view())
+    path('bracket', BracketInformation.as_view()),
+    path('tournaments', TournamentsData.as_view())
 ]

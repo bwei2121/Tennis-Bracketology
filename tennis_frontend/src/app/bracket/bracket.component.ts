@@ -7,6 +7,8 @@ import { BackendData, BracketManagerData, Dataset, DialogData, MatchInfo, MatchR
 import { Id, Match, Result } from "brackets-model";
 import { MatDialog } from "@angular/material/dialog";
 import { MatchOverviewDialog } from "../dialog/dialog.components";
+import { ErrorDialog } from "../error/error.components";
+import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -22,33 +24,46 @@ export class BracketComponent implements OnInit {
   STAGE_ID: number = 0;
   @ViewChild('bracket') bracket!: ElementRef;
 
-  constructor(private dialog: MatDialog, private renderer: Renderer2) {}
+  constructor(private dialog: MatDialog, private renderer: Renderer2, private router: Router) {}
 
   /**
    * Gets bracket data from backend and process that data using the brackets-manager and brackets-viewer libraries
    * Traverse through DOM and add onerror attribute onto img tags to hide player images that could not be found
+   * Navigates user back to choosing tournaments page if no data for chosen tournament bracket
    */
   async ngOnInit(): Promise<void> {
-    const bracketDataset: BackendData=await this.getBracketData();
-    const title: string=bracketDataset['title'];
-    const roster: Roster[]=bracketDataset['roster'];
-    const results: MatchInfo[]=bracketDataset['results'];
-    this.processBracketData(this.createDataForBracketViewer(roster, title), results).then(async (data: ProcessData) => {
-      window.bracketsViewer.render(data.managerData);
-      this.addHTMLAttributes();
-    });
+    const bracketDataset: BackendData | null=await this.getBracketData();
+    if(bracketDataset==null){
+      this.navigateToChooseTournaments();
+    }
+    else{
+      const title: string=bracketDataset['title'];
+      const roster: Roster[]=bracketDataset['roster'];
+      const results: MatchInfo[]=bracketDataset['results'];
+      this.processBracketData(this.createDataForBracketViewer(roster, title), results).then(async (data: ProcessData) => {
+        window.bracketsViewer.render(data.managerData);
+        this.addHTMLAttributes();
+      });
+    }
   }
   
   /**
    * Gets bracket data based on specified tournament name from backend using axios
-   * @returns Promise<BackendData>: Returns bracket data from backend
+   * @returns Promise<BackendData | null>: Returns bracket data (or null if no data) from backend
    */
-  async getBracketData(): Promise<BackendData> {
-    const bracketData=(await axios.get('http://localhost:8000/bracket', {
+  async getBracketData(): Promise<BackendData | null> {
+    let bracketData=null;
+    await axios.get('http://localhost:8000/bracket', {
       params: {
         tournament: this.tournament
       }
-    })).data;
+    }).then((response) => {
+      bracketData=response.data;
+    })
+    .catch(() => {
+      this.dialog.open(ErrorDialog);
+      this.navigateToChooseTournaments();
+    });
     return bracketData;
   }
 
@@ -393,5 +408,12 @@ export class BracketComponent implements OnInit {
       }
     }
     return {id: -1, name: ""}; // playerID not found
+  }
+
+  /**
+   * Sends user to choosing tournaments page
+   */
+  navigateToChooseTournaments() {
+    this.router.navigate(['/choose']);
   }
 }

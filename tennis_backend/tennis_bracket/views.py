@@ -1,6 +1,6 @@
 import json
 from rest_framework.views import APIView
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from tennis_scraper import getAllTournaments, getBracketInfo
 
@@ -10,6 +10,8 @@ class BracketInformation(APIView):
   def get(self, request):
     tournament=request.GET['tournament']
     bracketData=getBracketInfo(f"https://www.tennisabstract.com/current/{tournament}.html")
+    if(bracketData==None):
+      raise Http404
     title=bracketData[0]
     roster=bracketData[1]
     results=bracketData[2]

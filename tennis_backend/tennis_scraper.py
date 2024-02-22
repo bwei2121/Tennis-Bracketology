@@ -35,7 +35,10 @@ def findPlayerList(playerContent):
 # Parameter playersSoup: HTML player content created by BeautifulSoup library
 # Returns list of players and ids for players
 def getPlayerList(playersSoup):
-  players=playersSoup.table.find_all('td')
+  dataTable=playersSoup.table
+  if(dataTable==None):
+    return None
+  players=dataTable.find_all('td')
   playerList=[]
   playerId=0
   for playerHTML in players:
@@ -230,6 +233,8 @@ def getBracketInfo(url):
   playersHTML=findPlayerList(playersContent)
   playersSoup = BeautifulSoup(playersHTML, "html.parser")
   playerList=getPlayerList(playersSoup)
+  if(playerList==None):
+    return None
   matchList=getCompletedMatchResults(playerList, playersContent)
   return (tournamentTitle, playerList, matchList)
 

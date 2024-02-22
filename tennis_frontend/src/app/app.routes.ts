@@ -4,7 +4,7 @@ import { CreateBracketComponent } from './create-bracket/create-bracket.componen
 import { ChooseTournament } from './choose/choose.component';
 
 export const routes: Routes = [
-  { path: 'view', component: ViewBracketComponent },
-  { path: 'create', component: CreateBracketComponent },
+  { path: 'view/:name', component: ViewBracketComponent },
+  { path: 'create/:name', component: CreateBracketComponent },
   { path: 'choose', component: ChooseTournament }
 ];

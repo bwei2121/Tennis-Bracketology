@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { BracketComponent } from "../bracket/bracket.component";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
     standalone: true,
@@ -10,4 +11,17 @@ import { BracketComponent } from "../bracket/bracket.component";
 })
 export class ViewBracketComponent {
   type: string = 'view';
+  tournament: string = '';
+
+  constructor(private route: ActivatedRoute) {}
+
+  /**
+   * Get tournament name from url
+   */
+  ngOnInit() {
+    const tournament=this.route.snapshot.paramMap.get('name');
+    if(tournament!=null){
+      this.tournament=tournament;
+    }
+  }
 }

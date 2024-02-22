@@ -17,6 +17,7 @@ import { MatchOverviewDialog } from "../dialog/dialog.components";
 })
 export class BracketComponent implements OnInit {
   @Input() type: string = '';
+  @Input() tournament = '';
   TOURNAMENT_ID: number = 0;
   STAGE_ID: number = 0;
   @ViewChild('bracket') bracket!: ElementRef;
@@ -39,11 +40,15 @@ export class BracketComponent implements OnInit {
   }
   
   /**
-   * Gets bracket data from backend using axios
+   * Gets bracket data based on specified tournament name from backend using axios
    * @returns Promise<BackendData>: Returns bracket data from backend
    */
   async getBracketData(): Promise<BackendData> {
-    const bracketData=(await axios.get('http://localhost:8000/bracket')).data;
+    const bracketData=(await axios.get('http://localhost:8000/bracket', {
+      params: {
+        tournament: this.tournament
+      }
+    })).data;
     return bracketData;
   }
 
@@ -344,9 +349,7 @@ export class BracketComponent implements OnInit {
   async updateMatchonFrontend(match: Match, manager: BracketsManager, playerWinner: Roster, result: DialogData, winPlayerNumber: number, losePlayerNumber: number): Promise<void> {
     // current predicted match to update
     const matchContainer = this.addHTMLAttributes(`${match.id}`);
-    console.log(matchContainer)
     if(matchContainer){
-      console.log(matchContainer.children[0].children[1])
       const result1 = matchContainer.children[0].children[winPlayerNumber];
       if(result1){
         result1.classList.add('win');

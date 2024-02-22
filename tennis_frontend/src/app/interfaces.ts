@@ -53,4 +53,5 @@ export interface DialogData {
 export interface Tournament {
   title: string; 
   url: string;
+  recent: boolean;
 }

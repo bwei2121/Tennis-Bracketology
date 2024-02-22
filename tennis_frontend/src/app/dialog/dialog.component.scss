@@ -3,5 +3,9 @@ div, h1 {
 }
 
 input {
-  width: 5%;
+  width: 7px; // make width the same size on any screen so score digits are always visible
+}
+
+.chosenButton {
+  box-shadow: inset 0em 0em 0.8em #666666;
 }

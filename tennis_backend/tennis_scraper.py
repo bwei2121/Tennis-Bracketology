@@ -226,28 +226,45 @@ def getCompletedMatchResults(playerList, content):
 def getBracketInfo(url):
   content=getPage(url)
   tournamentTitle=getTournamentTitle(content)
-  playersContent=str(content.head.find_all('script')[1].contents[0])
+  playersContent=str(content.head.find_all('script')[-1].contents[0]) # last script tag in head has relevant bracket data needed
   playersHTML=findPlayerList(playersContent)
   playersSoup = BeautifulSoup(playersHTML, "html.parser")
   playerList=getPlayerList(playersSoup)
   matchList=getCompletedMatchResults(playerList, playersContent)
   return (tournamentTitle, playerList, matchList)
 
-# Get all tournament brackets that are available to view from tennisabstract.com
+# Get all tournament brackets that are available to view from tennisabstract.com, recent tournaments are stored at beginning of array
 # Returns array of tournament names and their urls
 def getAllTournaments():
   URL = "https://www.tennisabstract.com/current/"
   headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
   page = requests.get(URL, headers=headers)
   content = BeautifulSoup(page.content, "html.parser")
-  tournaments=[]
+  recentTournaments=[]
+  currentTournaments=[]
   for row in content.body.find('table').find_all('tr'):
-    for rowData in row.find_all('td'):
-      if(rowData.a): # check for html tag 'a'
-        url=rowData.contents[0].get('href')
+    rowData=row.find_all('td')
+    if(len(rowData)>=3):
+      urlData=rowData[1]
+      if(urlData.a):
+        url=urlData.contents[0].get('href')
         if(not (url.startswith('2022') or url=='favicon.ico' or url=='/')):
           title=parsedTitle(url.replace('.html', ''))
-          tournaments.append({'title': title, 'url': url})
+          updateTime=rowData[2].contents[0]
+          index=updateTime.find(' ')
+          updateTime=updateTime[0:index]
+          updateTimeArray=updateTime.split('-')
+          if(len(updateTimeArray)==3):
+            year=int(updateTimeArray[0])
+            month=int(updateTimeArray[1])
+            day=int(updateTimeArray[2])
+            tournamentDate=datetime.datetime(year, month, day)
+            currentDate=datetime.datetime.now()
+            if(currentDate-tournamentDate<=datetime.timedelta(days=7)): # finding recent tournaments
+              recentTournaments.append({'title': title, 'url': url, 'recent': True})
+            else:
+              currentTournaments.append({'title': title, 'url': url, 'recent': False})
+  tournaments=recentTournaments+currentTournaments
   return tournaments
 
 # Converts title into a readable title for user

@@ -1,0 +1,13 @@
+.bracket {
+  display: flex;
+  flex-direction: row;
+}
+
+.button {
+  top: 1em;
+  position: sticky;
+  white-space: nowrap;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+}

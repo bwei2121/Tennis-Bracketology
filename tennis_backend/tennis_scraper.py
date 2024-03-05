@@ -41,6 +41,7 @@ def getPlayerList(playersSoup):
   players=dataTable.find_all('td')
   playerList=[]
   playerId=0
+  qualifierPlayerNumber=1
   for playerHTML in players:
     if(playerHTML.a): 
       player=''
@@ -52,6 +53,10 @@ def getPlayerList(playersSoup):
       playerId+=1
     elif(playerHTML.text=="Bye"):
       playerList.append(None)
+    elif("Qualifier" in playerHTML.text):
+      playerList.append({"playerId": playerId, "playerName": f"Qualifer Player {qualifierPlayerNumber}"})
+      playerId+=1
+      qualifierPlayerNumber+=1
   return playerList
 
 # Gets the tournament name from the tournamnt URL page

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, Renderer2 } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef, Input, Renderer2, EventEmitter, Output } from "@angular/core";
 import axios from 'axios';
 import { BracketsManager } from "brackets-manager";
 import { getNearestPowerOfTwo } from "brackets-manager/dist/helpers";
@@ -9,13 +9,14 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatchOverviewDialog } from "../dialog/dialog.components";
 import { ErrorDialog } from "../error/error.components";
 import { Router } from '@angular/router';
+import { CommonModule } from "@angular/common";
 
 @Component({
   standalone: true,
   selector: 'bracket',
   templateUrl: 'bracket.component.html',
   styleUrls: ['bracket.component.scss'],
-  imports: []
+  imports: [ CommonModule ]
 })
 export class BracketComponent implements OnInit {
   @Input() type: string = '';
@@ -23,6 +24,8 @@ export class BracketComponent implements OnInit {
   TOURNAMENT_ID: number = 0;
   STAGE_ID: number = 0;
   @ViewChild('bracket') bracket!: ElementRef;
+  @Output() bracketInfo = new EventEmitter<[BracketsManager, Dataset]>();
+  bracketData!: [BracketsManager, Dataset];
 
   constructor(private dialog: MatDialog, private renderer: Renderer2, private router: Router) {}
 
@@ -110,6 +113,7 @@ export class BracketComponent implements OnInit {
     }
     
     const data = await manager.get.stageData(this.STAGE_ID);
+    this.bracketData=[manager, dataset];
     
     const managerData: BracketManagerData = {
       stages: data.stage,
@@ -415,5 +419,13 @@ export class BracketComponent implements OnInit {
    */
   navigateToChooseTournaments() {
     this.router.navigate(['/choose']);
+  }
+
+  /**
+   * Sends bracket information to CreateBracketComponent, which will send bracket data to store in database
+   * Function is called when user presses "Save Bracket" button
+   */
+  sendBracketInfo() {
+    this.bracketInfo.emit(this.bracketData);
   }
 }

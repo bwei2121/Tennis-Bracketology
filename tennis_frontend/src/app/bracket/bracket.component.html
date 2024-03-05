@@ -2,5 +2,8 @@
   <div #bracket class="brackets-viewer"></div>
   <div class="button">
     <button mat-button (click)="navigateToChooseTournaments()">Go Back</button>
+    <ng-template [ngIf]="type=='create'">
+      <button mat-button class="margin" (click)="sendBracketInfo()">Save Bracket</button>
+    </ng-template>
   </div>
 </div>

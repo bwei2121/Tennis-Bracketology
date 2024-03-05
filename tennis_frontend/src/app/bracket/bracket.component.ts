@@ -43,7 +43,8 @@ export class BracketComponent implements OnInit {
       const title: string=bracketDataset['title'];
       const roster: Roster[]=bracketDataset['roster'];
       const results: MatchInfo[]=bracketDataset['results'];
-      this.processBracketData(this.createDataForBracketViewer(roster, title), results).then(async (data: ProcessData) => {
+      const method: string=bracketDataset['method'];
+      this.processBracketData(this.createDataForBracketViewer(roster, title), results, method).then(async (data: ProcessData) => {
         window.bracketsViewer.render(data.managerData);
         this.addHTMLAttributes();
       });
@@ -58,7 +59,8 @@ export class BracketComponent implements OnInit {
     let bracketData=null;
     await axios.get('http://localhost:8000/bracket', {
       params: {
-        tournament: this.tournament
+        tournament: this.tournament,
+        type: this.type
       }
     }).then((response) => {
       bracketData=response.data;
@@ -74,9 +76,10 @@ export class BracketComponent implements OnInit {
    * Create a tennis bracket using brackets-manager library and formatting data that can be usable by brackets-viewer library
    * @param dataset: backend data representing tennis bracket data for a tournament
    * @param matchResults: match information to update tennis bracket after initial matchups
+   * @param method: method of retrieving bracket data (either through webscraping or database)
    * @returns Promise<BracketManagerData>: data format usable by brackets-viewer library
    */
-  async processBracketData(dataset: Dataset, matchResults: MatchInfo[]): Promise<ProcessData> {
+  async processBracketData(dataset: Dataset, matchResults: MatchInfo[], method: string): Promise<ProcessData> {
     const db = new InMemoryDatabase();
     const manager = new BracketsManager(db);
   
@@ -108,7 +111,8 @@ export class BracketComponent implements OnInit {
     // add images for players
     await window.bracketsViewer.setParticipantImages(this.createDataForPictures(dataset.roster));
 
-    if(this.type=='view'){
+    // fill in all matches if user wants to 'view' full bracket or restore bracket to last saved user bracket from database
+    if(this.type=='view' || method=='database'){
       await this.updateMatches(matchResults, manager); 
     }
     

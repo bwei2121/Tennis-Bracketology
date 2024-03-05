@@ -28,6 +28,7 @@ export interface BackendData {
   title: string;
   roster: Roster[];
   results: MatchInfo[];
+  method: string;
 }
 
 export interface MatchInfo {

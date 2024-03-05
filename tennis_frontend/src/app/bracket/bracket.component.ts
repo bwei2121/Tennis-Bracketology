@@ -154,7 +154,7 @@ export class BracketComponent implements OnInit {
         players.push(null); // represents a bye
       }
       else{
-        players.push(player.name);
+        players.push(player.playerName);
       }
     }
     return players;
@@ -208,10 +208,10 @@ export class BracketComponent implements OnInit {
   createDataForPictures(roster: Roster[]) {
     const imageData=[];
     for(const player of roster){
-      if(player!=null && player.id!=null && player.name!=null){
+      if(player!=null && player.playerId!=null && player.playerName!=null){
         imageData.push({
-          participantId: player.id,
-          imageUrl: this.getImageUrl(player.name)
+          participantId: player.playerId,
+          imageUrl: this.getImageUrl(player.playerName)
         });
       }
     }
@@ -304,7 +304,7 @@ export class BracketComponent implements OnInit {
 
       dialogRef.afterClosed().subscribe(async (result: DialogData) => {
         if(result){
-          if(result.playerWinner && player1.name==result.playerWinner){
+          if(result.playerWinner && player1.playerName==result.playerWinner){
             await this.updateMatchInBracket(result, 1, manager, match);
             await this.updateMatchonFrontend(match, manager, player1, result, 1, 2);
           }
@@ -377,20 +377,20 @@ export class BracketComponent implements OnInit {
       if(result2){
         result2.classList.add('loss');
       }
-      const nextMatch: Match = (await manager.find.nextMatches(match.id, playerWinner.id))[0];
+      const nextMatch: Match = (await manager.find.nextMatches(match.id, playerWinner.playerId))[0];
       // next match of player winner to update
       const nextMatchContainer = this.addHTMLAttributes(`${nextMatch.id}`);
       if(nextMatchContainer){
-        if(nextMatch.opponent1?.id==playerWinner.id){
+        if(nextMatch.opponent1?.id==playerWinner.playerId){
           const name1 = nextMatchContainer.children[0].children[1].children[0];
           if (name1){
-            name1.innerHTML = `<img src="${this.getImageUrl(playerWinner.name)}" onerror="this.style.visibility = 'hidden'">${result.playerWinner}`;
+            name1.innerHTML = `<img src="${this.getImageUrl(playerWinner.playerName)}" onerror="this.style.visibility = 'hidden'">${result.playerWinner}`;
           }
         }
         else{
           const name2 = nextMatchContainer.children[0].children[2].children[0];
           if (name2){
-            name2.innerHTML = `<img src="${this.getImageUrl(playerWinner.name)}" onerror="this.style.visibility = 'hidden'">${result.playerWinner}`;
+            name2.innerHTML = `<img src="${this.getImageUrl(playerWinner.playerName)}" onerror="this.style.visibility = 'hidden'">${result.playerWinner}`;
           } 
         }
       }
@@ -406,12 +406,12 @@ export class BracketComponent implements OnInit {
   findPlayerFromID(playerID: Id | null, roster: Roster[]): Roster {
     if(playerID!=null){
       for(const player of roster){
-        if(player!=null && player.id==playerID){
+        if(player!=null && player.playerId==playerID){
           return player;
         }
       }
     }
-    return {id: -1, name: ""}; // playerID not found
+    return {playerId: -1, playerName: ""}; // playerID not found
   }
 
   /**

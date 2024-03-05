@@ -33,7 +33,7 @@
 </div>
 <div mat-dialog-actions>
   <p>Choose the winning player</p>
-  <button [ngClass]="{'chosenButton': this.data.playerWinner==data.player1.name}"mat-button (click)="setPlayerWinner(data.player1.name, 0)">{{data.player1.name}}</button>
-  <button [ngClass]="{'chosenButton': this.data.playerWinner==data.player2.name}"mat-button (click)="setPlayerWinner(data.player2.name, 1)">{{data.player2.name}}</button>
+  <button [ngClass]="{'chosenButton': this.data.playerWinner==data.player1.playerName}"mat-button (click)="setPlayerWinner(data.player1.playerName, 0)">{{data.player1.playerName}}</button>
+  <button [ngClass]="{'chosenButton': this.data.playerWinner==data.player2.playerName}"mat-button (click)="setPlayerWinner(data.player2.playerName, 1)">{{data.player2.playerName}}</button>
   <button mat-button [disabled]="!data.playerWinner" (click)="sendData()">Submit</button>
 </div>

@@ -38,8 +38,8 @@ export class MatchOverviewDialog implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: DialogData) {}
 
   ngOnInit(): void {
-    const player1 = this.formBuilder.group({ player: [this.data.player1.name], firstSet: [''], secondSet: [''], thirdSet: [''] });
-    const player2 = this.formBuilder.group({ player: [this.data.player2.name], firstSet: [''], secondSet: [''], thirdSet: [''] });
+    const player1 = this.formBuilder.group({ player: [this.data.player1.playerName], firstSet: [''], secondSet: [''], thirdSet: [''] });
+    const player2 = this.formBuilder.group({ player: [this.data.player2.playerName], firstSet: [''], secondSet: [''], thirdSet: [''] });
     this.playerScore.push(player1);
     this.playerScore.push(player2);
     this.tableDataSource = new MatTableDataSource((this.tennisScores.get('playerScore') as FormArray).controls);

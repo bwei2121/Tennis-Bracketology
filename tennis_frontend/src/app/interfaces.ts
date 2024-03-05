@@ -8,8 +8,8 @@ export interface Dataset {
 }
 
 export interface Roster {
-  id: number;
-  name: string;
+  playerId: number;
+  playerName: string;
 }
 
 export interface BracketManagerData {

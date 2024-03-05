@@ -48,7 +48,7 @@ def getPlayerList(playersSoup):
         player+=playerHTML.contents[0]
         player+=' '
       player+=playerHTML.find('a').contents[0]
-      playerList.append({"id": playerId, "name": str(player)})
+      playerList.append({"playerId": playerId, "playerName": str(player)})
       playerId+=1
     elif(playerHTML.text=="Bye"):
       playerList.append(None)
@@ -122,13 +122,13 @@ def playerScore(score, player):
 def searchIDForPlayer(player, playerList): 
   for item in playerList:
     if(item!=None):
-      checkForSeedIndex=item['name'].find(') ')
-      playerName=item['name']
+      checkForSeedIndex=item['playerName'].find(') ')
+      playerName=item['playerName']
       # remove seed off player name
       if(checkForSeedIndex!=-1):
-        playerName=item['name'][checkForSeedIndex+2:]
+        playerName=item['playerName'][checkForSeedIndex+2:]
       if(playerName==player):
-        return item['id']
+        return item['playerId']
   return -1
 
 # Check if the round name string can be found in the content HTML

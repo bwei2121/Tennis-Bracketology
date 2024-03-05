@@ -25,6 +25,12 @@
   height: 2em;
 }
 
+// align BYE text to look similar to players in bracket
+.brackets-viewer .participant .name.bye {
+  height: 2em; // same height as .brackets-viewer .participant .name>img selector
+  padding-left: 1.3em;
+}
+
 // remove arrow from header of table when choosing tournaments
 .mat-sort-header-arrow {
   display: none !important;
@@ -36,4 +42,9 @@
 .mat-sort-header-content {
   width: 100%;
   justify-content: center;
+}
+
+// standardize button color to tennis green color
+button {
+  background-color: #9CB879;
 }

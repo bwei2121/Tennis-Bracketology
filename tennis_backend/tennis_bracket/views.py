@@ -2,7 +2,7 @@ import json
 from rest_framework.views import APIView
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
-from tennis_scraper import getAllTournaments, getBracketInfo, parsedTitle
+from tennis_scraper import getAllTournaments, getBracketInfo, getH2H, getPlayerRank, parsedTitle
 from tennis_bracket.serializers import BracketSerializer
 from tennis_bracket.models import BracketData
 from tennis_bracket.backend_functions import getStoredBracket
@@ -45,3 +45,14 @@ class TournamentsData(APIView):
     allTournaments=getAllTournaments()
     data={"tournaments": allTournaments}
     return HttpResponse(json.dumps(data))
+  
+class PlayerData(APIView):
+  def get(self, request):
+    player=request.GET['player']
+    opponent=request.GET['opponent']
+    opponentParsed=request.GET['opponentParsed']
+    h2hData=getH2H(player, opponent, opponentParsed)
+    playerRank=getPlayerRank(player)
+    opponentRank=getPlayerRank(opponentParsed)
+    playerData={"h2hData": h2hData, "playerRank": playerRank, "opponentRank": opponentRank}
+    return HttpResponse(json.dumps(playerData))

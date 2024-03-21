@@ -1,3 +1,4 @@
+import json
 import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
@@ -300,3 +301,37 @@ def parsedTitle(title):
     words.append(title[startIndex:endIndex])
   words.append(title[parseIndexes[len(parseIndexes)-1]:len(title)])
   return ' '.join(words)
+
+def getH2H(player, opponent, opponentParsed):
+  wins=0
+  losses=0
+  url=f"https://www.tennisabstract.com/cgi-bin/player.cgi?p={player}&f=ACareerqq&q={opponentParsed}"
+  matchArrayString=findRelevantData(url, "var matchmx", "var fourspaces", 14, 4)
+  if(matchArrayString==''):
+    return {"wins": 0, "losses": 0} # temp filler for women h2h stats
+  matchArray=json.loads(matchArrayString)
+  for match in matchArray:
+    if(match[11]==opponent): # match[11] stores opponent in match
+      if(match[9]!="W/O" and match[9]!=""): # withdraws and matches that hasn't happened do not count towards H2H
+        if(match[4]=="W"): # match[4] stores result of match (either "W" or "L")
+          wins+=1
+        else: # match[4]=="L"
+          losses+=1
+  return {"wins": wins, "losses": losses}
+
+def getPlayerRank(player):
+  url=f"https://www.tennisabstract.com/cgi-bin/player.cgi?p={player}"
+  playerRankData=findRelevantData(url, "var currentrank", "var peakrank", 18, 2)
+  if(playerRankData==''):
+    url=f"https://www.tennisabstract.com/cgi-bin/wplayer-classic.cgi?p={player}"
+    playerRankData=findRelevantData(url, "var currentrank", "var peakrank", 18, 2)
+  return int(playerRankData)
+
+def findRelevantData(url, startParseString, endParseString, addToStartIndex, subtractToEndIndex):
+  pageContent=getPage(url)
+  if(pageContent.head==None):
+    return ''
+  dataContent=str(pageContent.head.find_all('script')[-1].contents[0]) # last script tag in head has relevant data needed
+  startIndex=dataContent.find(startParseString)
+  endIndex=dataContent.find(endParseString)
+  return dataContent[startIndex+addToStartIndex:endIndex-subtractToEndIndex]

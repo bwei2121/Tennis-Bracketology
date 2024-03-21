@@ -6,7 +6,6 @@
 .button {
   top: 1em;
   position: sticky;
-  white-space: nowrap;
   align-self: start;
   display: flex;
   flex-direction: column;
@@ -14,4 +13,8 @@
 
 .margin {
   margin-top: 0.5em;
+}
+
+.brackets-viewer {
+  width: 130%;
 }

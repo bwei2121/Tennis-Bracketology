@@ -56,3 +56,22 @@ export interface Tournament {
   url: string;
   recent: boolean;
 }
+
+export interface MatchInfoDialog {
+  player: string;
+  playerParsed: string;
+  opponent: string;
+  h2h: number; // head to head wins
+  rank: number;
+}
+
+export interface H2H {
+  wins: number;
+  losses: number;
+}
+
+export interface PlayersData {
+  h2hData: H2H;
+  playerRank: number;
+  opponentRank: number;
+}

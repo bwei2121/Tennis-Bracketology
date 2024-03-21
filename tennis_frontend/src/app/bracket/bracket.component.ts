@@ -302,22 +302,24 @@ export class BracketComponent implements OnInit {
       const player1=this.findPlayerFromID(match.opponent1.id, roster);
       const player2=this.findPlayerFromID(match.opponent2.id, roster);
   
-      const dialogRef = dialog.open(MatchOverviewDialog, {
-        data: {player1: player1, player2: player2}
-      });
-
-      dialogRef.afterClosed().subscribe(async (result: DialogData) => {
-        if(result){
-          if(result.playerWinner && player1.playerName==result.playerWinner){
-            await this.updateMatchInBracket(result, 1, manager, match);
-            await this.updateMatchonFrontend(match, manager, player1, result, 1, 2);
+      if(!(player1.playerName.includes("Qualifer") || player2.playerName.includes("Qualifer"))){
+        const dialogRef = dialog.open(MatchOverviewDialog, {
+          data: {player1: player1, player2: player2}
+        });
+  
+        dialogRef.afterClosed().subscribe(async (result: DialogData) => {
+          if(result){
+            if(result.playerWinner && player1.playerName==result.playerWinner){
+              await this.updateMatchInBracket(result, 1, manager, match);
+              await this.updateMatchonFrontend(match, manager, player1, result, 1, 2);
+            }
+            else{
+              await this.updateMatchInBracket(result, 2, manager, match);
+              await this.updateMatchonFrontend(match, manager, player2, result, 2, 1);
+            }
           }
-          else{
-            await this.updateMatchInBracket(result, 2, manager, match);
-            await this.updateMatchonFrontend(match, manager, player2, result, 2, 1);
-          }
-        }
-      });
+        });
+      }
     }
   }
 

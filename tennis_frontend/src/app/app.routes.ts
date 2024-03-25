@@ -6,5 +6,7 @@ import { ChooseTournament } from './choose/choose.component';
 export const routes: Routes = [
   { path: 'view/:name', component: ViewBracketComponent },
   { path: 'create/:name', component: CreateBracketComponent },
-  { path: 'choose', component: ChooseTournament }
+  { path: 'choose', component: ChooseTournament },
+  { path: '', redirectTo: 'choose', pathMatch: 'full'},
+  { path: '**', redirectTo: 'choose'} // no match to user entered route
 ];

@@ -65,10 +65,7 @@ def getPlayerList(playersSoup):
 # Returns tournament title
 def getTournamentTitle(htmlPage):
   content=htmlPage.head.title.text
-  beginIndex=content.find(":")
-  endIndex=content.find("Results")
-  title=content[beginIndex+2:endIndex-1]
-  return title
+  return getContentUsingStartAndEndString(content, ":", "Results", 2, 1)
 
 # Check if html has score information about match
 # Parameter scoreHTML: html related to match score
@@ -222,9 +219,7 @@ def getCompletedMatchList(content, playerList):
 # Parameter content: HTML of tournament URL page 
 # Returns tournament title
 def getCompletedMatchResults(playerList, content):
-  beginIndex=content.find('completedSingles')
-  endIndex=content.find('completedDoubles')
-  resultsHTML=content[beginIndex+19:endIndex-7]
+  resultsHTML=getContentUsingStartAndEndString(content, 'completedSingles', 'completedDoubles', 19, 7)
   soup=BeautifulSoup(resultsHTML, "html.parser")
   matchContent=soup.contents
   matchList=getCompletedMatchList(matchContent, playerList)
@@ -302,14 +297,26 @@ def parsedTitle(title):
   words.append(title[parseIndexes[len(parseIndexes)-1]:len(title)])
   return ' '.join(words)
 
+# Gets head to head record between two players in a match
+# Parameter player: name of player 1 in match (parsed for url search)
+# Parameter opponent: name of player 2 in match
+# Parmeter opponentParsed: name of player 2 but parsed for url search
+# Returns head to head record from perspective of player 1 and if the match is ATP (men's) or WTA (women's)
 def getH2H(player, opponent, opponentParsed):
   wins=0
   losses=0
+  # Get h2h record if match between men players
   url=f"https://www.tennisabstract.com/cgi-bin/player.cgi?p={player}&f=ACareerqq&q={opponentParsed}"
   matchArrayString=findRelevantData(url, "var matchmx", "var fourspaces", 14, 4)
-  if(matchArrayString==''):
-    return {"wins": 0, "losses": 0} # temp filler for women h2h stats
-  matchArray=json.loads(matchArrayString)
+  tour="ATP" # men's tennis
+  if(matchArrayString):
+    matchArray=json.loads(matchArrayString)
+  else:
+    # Get h2h record if match between women players
+    url1=f"https://www.minorleaguesplits.com/tennisabstract/cgi-bin/jsmatches/{player}.js"
+    url2=f"https://www.minorleaguesplits.com/tennisabstract/cgi-bin/jsmatches/{player}Career.js"
+    matchArray=findWomenMatches(url1, url2)
+    tour="WTA" # women's tour
   for match in matchArray:
     if(match[11]==opponent): # match[11] stores opponent in match
       if(match[9]!="W/O" and match[9]!=""): # withdraws and matches that hasn't happened do not count towards H2H
@@ -317,21 +324,58 @@ def getH2H(player, opponent, opponentParsed):
           wins+=1
         else: # match[4]=="L"
           losses+=1
-  return {"wins": wins, "losses": losses}
+  return ({"wins": wins, "losses": losses}, tour)
 
+# Get current rank of player
+# Paremeter player: name of player (parsed for url search)
+# Returns current rank of player
 def getPlayerRank(player):
+  # Get current rank if player from ATP (men's)
   url=f"https://www.tennisabstract.com/cgi-bin/player.cgi?p={player}"
   playerRankData=findRelevantData(url, "var currentrank", "var peakrank", 18, 2)
   if(playerRankData==''):
+     # Get current rank if player from WTA (women's)
     url=f"https://www.tennisabstract.com/cgi-bin/wplayer-classic.cgi?p={player}"
     playerRankData=findRelevantData(url, "var currentrank", "var peakrank", 18, 2)
+  if(playerRankData=='"UNR"'): # unranked
+    playerRankData=-1
   return int(playerRankData)
 
+# Get a specific part of parameter content given a starting and ending string
+# Parameter content: string that will be divided based on specificed starting and ending strings
+# Parameter startParseString: string that designates start of desired string in parameter content
+# Parameter endParseString: string that designates end of desired string in parameter content
+# Parmeter addToStartIndex: number that is used to fine-tune desired string, usually to remove parameter startParseString from parameter content
+# Parmeter subtractToEndIndex: number that is used to fine-tune desired string, usually to remove parameter endParseString from parameter content
+# Returns string that is desired, a subset of parameter content
+def getContentUsingStartAndEndString(content, startParseString, endParseString, addToStartIndex, subtractToEndIndex):
+  startIndex=content.find(startParseString)
+  endIndex=content.find(endParseString)
+  return content[startIndex+addToStartIndex:endIndex-subtractToEndIndex]
+
+# Finds relevent match/bracket data 
+# Parameter url: url that contains the desired match/bracket data
+# Parameter startParseString: string that designates start of desired string in page content
+# Parameter endParseString: string that designates end of desired string in page content
+# Parmeter addToStartIndex: number that is used to fine-tune desired string, usually to remove parameter startParseString from page content
+# Parmeter subtractToEndIndex: number that is used to fine-tune desired string, usually to remove parameter endParseString from page content
 def findRelevantData(url, startParseString, endParseString, addToStartIndex, subtractToEndIndex):
   pageContent=getPage(url)
   if(pageContent.head==None):
     return ''
   dataContent=str(pageContent.head.find_all('script')[-1].contents[0]) # last script tag in head has relevant data needed
-  startIndex=dataContent.find(startParseString)
-  endIndex=dataContent.find(endParseString)
-  return dataContent[startIndex+addToStartIndex:endIndex-subtractToEndIndex]
+  return getContentUsingStartAndEndString(dataContent, startParseString, endParseString, addToStartIndex, subtractToEndIndex)
+
+# Finds all WTA matches for a WTA player, eventually used for finding h2h record in function getH2H
+# Parameter url1: url that contains recent matches of player
+# Parameter url2: url that contains older matches of player
+# Returns array of all matches for WTA player
+def findWomenMatches(url1, url2):
+  pageContent1=getPage(url1)
+  pageContent2=getPage(url2)
+  recentMatches=getContentUsingStartAndEndString(str(pageContent1), "var matchmx", "]];", 14, 1)
+  olderMatches=getContentUsingStartAndEndString(str(pageContent2), "var morematchmx", ";", 18, 0)
+  recentMatchesArray=json.loads(recentMatches)
+  olderMatchesArray=json.loads(olderMatches)
+  allMatches=olderMatchesArray+recentMatchesArray
+  return allMatches

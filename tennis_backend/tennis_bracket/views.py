@@ -47,12 +47,13 @@ class TournamentsData(APIView):
     return HttpResponse(json.dumps(data))
   
 class PlayerData(APIView):
+  # Send match information, wihch includes current ranks of both players and head to head record
   def get(self, request):
     player=request.GET['player']
     opponent=request.GET['opponent']
     opponentParsed=request.GET['opponentParsed']
-    h2hData=getH2H(player, opponent, opponentParsed)
+    (h2hData, tourType)=getH2H(player, opponent, opponentParsed)
     playerRank=getPlayerRank(player)
     opponentRank=getPlayerRank(opponentParsed)
-    playerData={"h2hData": h2hData, "playerRank": playerRank, "opponentRank": opponentRank}
+    playerData={"h2hData": h2hData, "playerRank": playerRank, "opponentRank": opponentRank, "tourType": tourType}
     return HttpResponse(json.dumps(playerData))

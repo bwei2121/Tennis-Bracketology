@@ -61,10 +61,11 @@ export class MatchOverviewDialog implements OnInit {
     const h2h: H2H=playersData.h2hData;
     const player1Rank=playersData.playerRank;
     const player2Rank=playersData.opponentRank;
+    const tourType=playersData.tourType;
     this.h2hLoaded=true;
     const tableDataSourceInformation: MatchInfoDialog[] = [
-      {player: this.data.player1.playerName, playerParsed: this.parsePlayerName(this.data.player1.playerName, ''), opponent: this.parsePlayerName(this.data.player2.playerName, ''), h2h: h2h.wins, rank: player1Rank},
-      {player: this.data.player2.playerName, playerParsed: this.parsePlayerName(this.data.player2.playerName, ''), opponent: this.parsePlayerName(this.data.player1.playerName, ''), h2h: h2h.losses, rank: player2Rank}
+      {player: this.data.player1.playerName, playerParsed: this.parsePlayerName(this.data.player1.playerName, ''), opponent: this.parsePlayerName(this.data.player2.playerName, ''), h2h: h2h.wins, h2hOpp: h2h.losses, rank: player1Rank, tourType: tourType},
+      {player: this.data.player2.playerName, playerParsed: this.parsePlayerName(this.data.player2.playerName, ''), opponent: this.parsePlayerName(this.data.player1.playerName, ''), h2h: h2h.losses, h2hOpp: h2h.wins, rank: player2Rank, tourType: tourType}
     ]
     this.tableDataSourceInformation = new MatTableDataSource(tableDataSourceInformation);
   }

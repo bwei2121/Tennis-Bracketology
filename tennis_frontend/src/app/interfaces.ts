@@ -62,7 +62,9 @@ export interface MatchInfoDialog {
   playerParsed: string;
   opponent: string;
   h2h: number; // head to head wins
+  h2hOpp: number; // opponent's head to head wins
   rank: number;
+  tourType: string;
 }
 
 export interface H2H {
@@ -74,4 +76,5 @@ export interface PlayersData {
   h2hData: H2H;
   playerRank: number;
   opponentRank: number;
+  tourType: string;
 }

@@ -14,13 +14,51 @@
       <ng-container matColumnDef="Current Rank">
         <th mat-header-cell *matHeaderCellDef>Current Rank</th>
         <td mat-cell *matCellDef="let element"> 
-          {{element.rank}}
+          <ng-container *ngIf="element.tourType=='ATP'; else tourWTA">
+            <a target="_blank" href="https://www.tennisabstract.com/cgi-bin/player.cgi?p={{element.playerParsed}}">
+              <ng-container *ngIf="element.rank==-1; else displayRank">
+                Unranked
+              </ng-container>
+              <ng-template #displayRank>
+                {{element.rank}}
+              </ng-template>
+            </a>
+          </ng-container>
+          <ng-template #tourWTA>
+            <a target="_blank" href="https://www.tennisabstract.com/cgi-bin/wplayer.cgi?p={{element.playerParsed}}">
+              <ng-container *ngIf="element.rank==-1; else displayRank">
+                Unranked
+              </ng-container>
+              <ng-template #displayRank>
+                {{element.rank}}
+              </ng-template>
+            </a>
+          </ng-template>
         </td>
       </ng-container>
       <ng-container matColumnDef="Head to Head">
         <th mat-header-cell *matHeaderCellDef>Head to Head</th>
         <td mat-cell *matCellDef="let element"> 
-          <a target="_blank" href="https://www.tennisabstract.com/cgi-bin/player-classic.cgi?p={{element.playerParsed}}&f=ACareerqq&q={{element.opponent}}">{{element.h2h}}</a>
+          <ng-container *ngIf="element.tourType=='ATP'; else tourWTA">
+            <ng-container *ngIf="element.h2h==0 && element.h2hOpp==0; else displayH2H">
+              0
+            </ng-container>
+            <ng-template #displayH2H>
+              <a target="_blank" href="https://www.tennisabstract.com/cgi-bin/player-classic.cgi?p={{element.playerParsed}}&f=ACareerqq&q={{element.opponent}}">
+                {{element.h2h}}
+              </a>
+            </ng-template>
+          </ng-container>
+          <ng-template #tourWTA>
+            <ng-container *ngIf="element.h2h==0 && element.h2hOpp==0; else displayH2H">
+              0
+            </ng-container>
+            <ng-template #displayH2H>
+              <a target="_blank" href="https://www.tennisabstract.com/cgi-bin/wplayer-classic.cgi?p={{element.playerParsed}}&f=ACareerqq&q={{element.opponent}}">
+                {{element.h2h}}
+              </a>
+            </ng-template>
+          </ng-template>
         </td>
       </ng-container>
     </table>

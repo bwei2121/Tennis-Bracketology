@@ -7,28 +7,28 @@ import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
 import { RouterModule } from '@angular/router';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
 import { Tournament } from "../interfaces";
+import { LoadingComponent } from "../loading/loading.components";
 
 @Component({
-  standalone: true,
-  selector: 'choose-tournament',
-  templateUrl: 'choose.component.html',
-  styleUrls: ['choose.component.scss'],
-  imports: [
-    CommonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    RouterModule,
-    MatProgressBarModule,
-    MatRadioModule,
-    FormsModule
-  ]
+    standalone: true,
+    selector: 'choose-tournament',
+    templateUrl: 'choose.component.html',
+    styleUrls: ['choose.component.scss'],
+    imports: [
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatTableModule,
+        MatSortModule,
+        MatPaginatorModule,
+        RouterModule,
+        MatRadioModule,
+        FormsModule,
+        LoadingComponent
+    ]
 })
 export class ChooseTournament implements OnInit {
   displayedColumns: string[] = ['title'];
@@ -38,6 +38,7 @@ export class ChooseTournament implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   loaded: boolean = false;
+  loadingText: string = "Loading tournaments...";
   
   constructor() {}
 

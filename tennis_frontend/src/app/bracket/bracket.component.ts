@@ -10,13 +10,14 @@ import { MatchOverviewDialog } from "../dialog/dialog.components";
 import { ErrorDialog } from "../error/error.components";
 import { Router } from '@angular/router';
 import { CommonModule } from "@angular/common";
+import { LoadingComponent } from "../loading/loading.components";
 
 @Component({
-  standalone: true,
-  selector: 'bracket',
-  templateUrl: 'bracket.component.html',
-  styleUrls: ['bracket.component.scss'],
-  imports: [ CommonModule ]
+    standalone: true,
+    selector: 'bracket',
+    templateUrl: 'bracket.component.html',
+    styleUrls: ['bracket.component.scss'],
+    imports: [CommonModule, LoadingComponent]
 })
 export class BracketComponent implements OnInit {
   @Input() type: string = '';
@@ -26,6 +27,8 @@ export class BracketComponent implements OnInit {
   @ViewChild('bracket') bracket!: ElementRef;
   @Output() bracketInfo = new EventEmitter<[BracketsManager, Dataset]>();
   bracketData!: [BracketsManager, Dataset];
+  loadingText: string = "Loading bracket...";
+  loadedBracketData: boolean = false;
 
   constructor(private dialog: MatDialog, private renderer: Renderer2, private router: Router) {}
 
@@ -45,6 +48,7 @@ export class BracketComponent implements OnInit {
       const results: MatchInfo[]=bracketDataset['results'];
       const method: string=bracketDataset['method'];
       this.processBracketData(this.createDataForBracketViewer(roster, title), results, method).then(async (data: ProcessData) => {
+        this.loadedBracketData=true;
         window.bracketsViewer.render(data.managerData);
         this.addHTMLAttributes();
       });

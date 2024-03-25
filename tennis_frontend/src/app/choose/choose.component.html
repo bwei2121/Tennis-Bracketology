@@ -17,7 +17,7 @@
     <!-- Title Column -->
     <ng-container matColumnDef="title">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> 
-        <div>Tournament Title</div>
+        <div>Tournament Name</div>
       </th>
       <td mat-cell *matCellDef="let row">
         <a [ngClass]="{'boldTitle': row.recent}" routerLink="/{{bracketChoice}}/{{row.title.split(' ').join('')}}">{{row.title}}</a>
@@ -34,8 +34,7 @@
           <div class="noMatch">No tournament title matches the search "{{input.value}}".</div>
         </div>
         <ng-template #elseBlock>
-          <div class="loading">Loading tournaments...</div>
-          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <loading [text]="loadingText"></loading>
         </ng-template>
       </td>
     </tr>

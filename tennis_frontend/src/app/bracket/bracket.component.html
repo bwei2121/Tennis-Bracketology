@@ -1,9 +1,14 @@
 <div class="bracket">
   <div #bracket class="brackets-viewer"></div>
-  <div class="button">
-    <button mat-button (click)="navigateToChooseTournaments()">Choose Another Tournament</button>
-    <ng-template [ngIf]="type=='create'">
-      <button mat-button class="margin" (click)="sendBracketInfo()">Save Bracket</button>
-    </ng-template>
-  </div>
+  <ng-container *ngIf="loadedBracketData; else notLoaded">
+    <div class="button">
+      <button mat-button (click)="navigateToChooseTournaments()">Choose Another Tournament</button>
+      <ng-template [ngIf]="type=='create'">
+        <button mat-button class="margin" (click)="sendBracketInfo()">Save Bracket</button>
+      </ng-template>
+    </div>
+  </ng-container>
+  <ng-template #notLoaded>
+    <loading class="loading" [text]="loadingText"></loading>
+  </ng-template>
 </div>

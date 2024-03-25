@@ -7,23 +7,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { DialogData, H2H, MatchInfoDialog, PlayersData } from '../interfaces';
 import axios from 'axios';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { LoadingComponent } from "../loading/loading.components";
 
 @Component({
-  standalone: true,
-  selector: 'match-overview-dialog',
-  templateUrl: 'dialog.component.html',
-  styleUrls: ['dialog.component.scss'],
-  imports: [
-    MatDialogClose,
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatTableModule,
-    ReactiveFormsModule,
-    CommonModule,
-    MatProgressBarModule
-  ],
+    standalone: true,
+    selector: 'match-overview-dialog',
+    templateUrl: 'dialog.component.html',
+    styleUrls: ['dialog.component.scss'],
+    imports: [
+        MatDialogClose,
+        MatFormFieldModule,
+        FormsModule,
+        MatInputModule,
+        MatTableModule,
+        ReactiveFormsModule,
+        CommonModule,
+        LoadingComponent
+    ]
 })
 export class MatchOverviewDialog implements OnInit {
   displayedColumnsPrediction: string[] = ['Player', 'First Set', 'Second Set', 'Third Set'];
@@ -37,6 +37,7 @@ export class MatchOverviewDialog implements OnInit {
   losePlayerNumber: number = 1;
   tableDataSourceInformation: MatTableDataSource<MatchInfoDialog> = new MatTableDataSource();
   h2hLoaded: boolean = false;
+  loadingText: string = "Loading match information...";
 
   constructor(
     public dialogRef: MatDialogRef<MatchOverviewDialog>,

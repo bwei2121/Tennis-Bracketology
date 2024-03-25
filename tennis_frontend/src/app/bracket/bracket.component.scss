@@ -1,6 +1,7 @@
 .bracket {
   display: flex;
   flex-direction: row;
+  height: 98vh;
 }
 
 .button {
@@ -17,4 +18,12 @@
 
 .brackets-viewer {
   width: 130%;
+}
+
+.loading {
+  width: 130%;
+}
+
+button:active {
+  box-shadow: inset 0em 0em 0.8em #666666;
 }

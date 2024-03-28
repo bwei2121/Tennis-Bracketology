@@ -16,7 +16,10 @@ export class ErrorDialog {
     public dialogRef: MatDialogRef<ErrorDialog>
   ) {}
 
-  onNoClick(): void {
+  /**
+   * Close Error Dialog
+   */
+  close(): void {
     this.dialogRef.close();
   }
 

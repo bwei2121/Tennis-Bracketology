@@ -9,12 +9,12 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Contributors][contributors-shield]][contributors-url]
+<!-- [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![CC BY-NC-SA 4.0 License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+[![LinkedIn][linkedin-shield]][linkedin-url] -->
 
 
 
@@ -199,7 +199,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Tennis Bracketology © 2024 by Brandon Wei is licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en). See `LICENSE.txt` for more information.
+Tennis Bracketology © 2024 by Brandon Wei is licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en). See [`LICENSE.txt`][license-url] for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -208,7 +208,11 @@ Tennis Bracketology © 2024 by Brandon Wei is licensed under [Creative Commons A
 <!-- CONTACT -->
 ## Contact
 
-Brandon Wei - brandon.wei1221@gmail.com
+Brandon Wei 
+
+Email: brandon.wei1221@gmail.com 
+
+LinkedIn: https://www.linkedin.com/in/brandon-wei21/
 
 Project Link: [https://github.com/bwei2121/Tennis-Bracketology](https://github.com/bwei2121/Tennis-Bracketology)
 

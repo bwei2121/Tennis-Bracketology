@@ -108,7 +108,7 @@ export class BracketComponent implements OnInit {
     });
   
     // allow user to predict matches
-    if(this.type=='create'){
+    if(this.type=='predict'){
       window.bracketsViewer.onMatchClicked = async (match: Match) => await this.openDialog(match, dataset.roster, this.dialog, manager);
     }
     

@@ -14,7 +14,7 @@ class BracketInformation(APIView):
     tournament=request.GET['tournament']
     type=request.GET['type']
     parsedTournament=parsedTitle(tournament)
-    if(type=="create"):
+    if(type=="predict"):
       bracketSet=BracketData.objects.filter(title=parsedTournament)
       if(bracketSet):
         # get most updated bracket of tournament

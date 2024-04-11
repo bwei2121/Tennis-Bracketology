@@ -3,7 +3,7 @@
   <ng-container *ngIf="loadedBracketData; else notLoaded">
     <div class="button">
       <button mat-button (click)="navigateToChooseTournaments()">Choose Another Tournament</button>
-      <ng-template [ngIf]="type=='create'">
+      <ng-template [ngIf]="type=='predict'">
         <button mat-button class="margin" (click)="sendBracketInfo()">Save Bracket</button>
       </ng-template>
     </div>

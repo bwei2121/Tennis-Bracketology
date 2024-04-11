@@ -8,13 +8,13 @@ import { Match, ParticipantResult } from "brackets-model";
 
 @Component({
     standalone: true,
-    selector: 'create-bracket',
-    templateUrl: 'create-bracket.component.html',
-    styleUrls: ['create-bracket.component.scss'],
+    selector: 'predict-bracket',
+    templateUrl: 'predict-bracket.component.html',
+    styleUrls: ['predict-bracket.component.scss'],
     imports: [BracketComponent]
 })
-export class CreateBracketComponent {
-  type: string = 'create';
+export class PredictBracketComponent {
+  type: string = 'predict';
   tournament: string = '';
   manager!: BracketsManager;
   tournamentData!: Dataset;

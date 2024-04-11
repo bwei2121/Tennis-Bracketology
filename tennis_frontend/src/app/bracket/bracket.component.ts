@@ -6,7 +6,7 @@ import { InMemoryDatabase } from '../storage/memory';
 import { BackendData, BracketManagerData, Dataset, DialogData, MatchInfo, MatchResult, ProcessData, Roster } from "../interfaces";
 import { Id, Match, Result } from "brackets-model";
 import { MatDialog } from "@angular/material/dialog";
-import { MatchOverviewDialog } from "../dialog/dialog.components";
+import { MatchOverviewDialog } from "../match-dialog/match-dialog.components";
 import { ErrorDialog } from "../error/error.components";
 import { Router } from '@angular/router';
 import { CommonModule } from "@angular/common";

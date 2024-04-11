@@ -12,8 +12,8 @@ import { LoadingComponent } from "../loading/loading.components";
 @Component({
     standalone: true,
     selector: 'match-overview-dialog',
-    templateUrl: 'dialog.component.html',
-    styleUrls: ['dialog.component.scss'],
+    templateUrl: 'match-dialog.component.html',
+    styleUrls: ['match-dialog.component.scss'],
     imports: [
         MatDialogClose,
         MatFormFieldModule,

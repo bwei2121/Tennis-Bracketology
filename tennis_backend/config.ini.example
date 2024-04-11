@@ -1,9 +1,10 @@
-To generate a new secret key, use get_random_secret_key() in Python: 
-  from django.core.management.utils import get_random_secret_key 
-    print(get_random_secret_key()) 
-Warning: The % character is special to ConfigParser - use %%  
-Warning: Changing secret keys invalidates existing sessions, 
-         so may need to delete your DB tables and re-migrate 
+- Create a file named config.ini with lines 9 and 10.
+- Run secret_key.py to generate a new random secret key.
+- Add random secret key where <random_secret_key> is located.
+- Warning: The % character is special to ConfigParser - use %%  
+- Warning: Changing secret keys invalidates existing sessions, 
+           so you may need to delete your DB tables and re-migrate 
+           (Reference Step 5 in Installation at README.md)
  
 [Django] 
 Secret_KEY=<random_secret_key>

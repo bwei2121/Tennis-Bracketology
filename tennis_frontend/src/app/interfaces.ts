@@ -78,3 +78,10 @@ export interface PlayersData {
   opponentRank: number;
   tourType: string;
 }
+
+export interface License {
+  title: string;
+  licenseName: string;
+  copyright: string;
+  licenseText: string;
+}

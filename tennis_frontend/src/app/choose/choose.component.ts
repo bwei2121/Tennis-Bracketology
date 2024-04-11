@@ -6,7 +6,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
 import { Tournament } from "../interfaces";
@@ -40,7 +40,7 @@ export class ChooseTournament implements OnInit {
   loaded: boolean = false;
   loadingText: string = "Loading tournaments...";
   
-  constructor() {}
+  constructor(private router: Router) {}
 
   /**
    * Gets all tournaments from backend and then setup MatTable to display tournament names to user
@@ -72,5 +72,12 @@ export class ChooseTournament implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  /**
+   * Navigate to credits page
+   */
+  navigateToCredits() {
+    this.router.navigate(['/credits']);
   }
 }

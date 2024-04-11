@@ -18,6 +18,9 @@
     <ng-container matColumnDef="title">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> 
         <div>Tournament Name</div>
+        <div class="acknowledgements">
+          <button mat-button (click)="navigateToCredits()">Acknowledgements</button>
+        </div>
       </th>
       <td mat-cell *matCellDef="let row">
         <a [ngClass]="{'boldTitle': row.recent}" routerLink="/{{bracketChoice}}/{{row.title.split(' ').join('')}}">{{row.title}}</a>

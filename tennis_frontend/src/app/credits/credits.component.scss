@@ -1,0 +1,17 @@
+.licenses { 
+  display: flex;
+}
+
+.button {
+  top: 1em;
+  position: sticky;
+  align-self: start;
+}
+
+button:active {
+  box-shadow: inset 0em 0em 0.8em #666666;
+}
+
+.allLicenses {
+  width: 120%;
+}

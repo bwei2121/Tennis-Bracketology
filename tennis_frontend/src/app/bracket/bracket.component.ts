@@ -11,13 +11,17 @@ import { ErrorDialog } from "../error/error.components";
 import { Router } from '@angular/router';
 import { CommonModule } from "@angular/common";
 import { LoadingComponent } from "../loading/loading.components";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatSelectModule } from "@angular/material/select";
+import { MatOptionModule } from "@angular/material/core";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     standalone: true,
     selector: 'bracket',
     templateUrl: 'bracket.component.html',
     styleUrls: ['bracket.component.scss'],
-    imports: [CommonModule, LoadingComponent]
+    imports: [CommonModule, LoadingComponent, MatFormFieldModule, MatSelectModule, MatOptionModule, FormsModule]
 })
 export class BracketComponent implements OnInit {
   @Input() type: string = '';
@@ -29,6 +33,8 @@ export class BracketComponent implements OnInit {
   bracketData!: [BracketsManager, Dataset];
   loadingText: string = "Loading bracket...";
   loadedBracketData: boolean = false;
+  seededPlayers!: Roster[];
+  selectedPlayer!: Roster;
 
   constructor(private dialog: MatDialog, private renderer: Renderer2, private router: Router) {}
 
@@ -107,6 +113,9 @@ export class BracketComponent implements OnInit {
       },
     });
   
+    // choose seeded player's pov to view bracket
+    this.seededPlayers=this.findSeededPlayers(dataset.roster);
+
     // allow user to predict matches
     if(this.type=='predict'){
       window.bracketsViewer.onMatchClicked = async (match: Match) => await this.openDialog(match, dataset.roster, this.dialog, manager);
@@ -437,5 +446,51 @@ export class BracketComponent implements OnInit {
    */
   sendBracketInfo() {
     this.bracketInfo.emit(this.bracketData);
+  }
+
+  /**
+   * Finds the seeded players in the tournament bracket, used for easily finding top players on bracket
+   * @param roster: roster of tournament players 
+   * @returns array of seeded tournament players
+   */
+  findSeededPlayers(roster: Roster[]): Roster[] {
+    const totalPlayers=roster.length;
+    const totalTopPlayers=totalPlayers/4; // 1/4 of all players are seeded players
+    let topPlayersArray: Roster[] = [];
+    roster[0]['matchId']=0;
+    roster[0]['alignment']='start';
+    topPlayersArray.push(roster[0]);
+    for(let index=1; index<totalTopPlayers/2; index++){
+      const playerSeeding=index*8;
+      const firstMatchId=Math.trunc((playerSeeding-1)/2);
+      const secondMatchId=Math.trunc(playerSeeding/2);
+      roster[playerSeeding-1]['matchId']=firstMatchId;
+      roster[playerSeeding-1]['alignment']='end';
+      roster[playerSeeding]['matchId']=secondMatchId;
+      roster[playerSeeding]['alignment']='start';
+      topPlayersArray.push(roster[playerSeeding-1]);
+      topPlayersArray.push(roster[playerSeeding]);
+    }
+    roster[totalPlayers-1]['matchId']=Math.trunc((totalPlayers-1)/2);
+    roster[totalPlayers-1]['alignment']='end';
+    topPlayersArray.push(roster[totalPlayers-1]);
+    return topPlayersArray;
+  }
+
+  /**
+   * Scrolls to player on the tournament bracket and briefly highlights the player name for user
+   */
+  scrollToTopPlayer() {
+    const matchHTML=this.addHTMLAttributes(`${this.selectedPlayer.matchId}`);
+    matchHTML?.scrollIntoView({block: this.selectedPlayer.alignment});
+    // this.selectedPlayer.alignment=="start"
+    let playerHTML=matchHTML?.children[0].children[1];
+    if(this.selectedPlayer.alignment=="end"){
+      playerHTML=matchHTML?.children[0].children[2];
+    }
+    playerHTML?.classList.add('playerHighlight');
+    this.renderer.listen(playerHTML, 'animationend', () => {
+      playerHTML?.classList.remove('playerHighlight');
+    });
   }
 }

@@ -6,6 +6,17 @@
       <ng-template [ngIf]="type=='predict'">
         <button mat-button class="margin" (click)="sendBracketInfo()">Save Bracket</button>
       </ng-template>
+      <div>
+        <h4>View a Seeded Player's POV:</h4>
+        <mat-form-field>
+          <mat-label>Select Player</mat-label>
+          <mat-select [(ngModel)]="selectedPlayer">
+            <mat-option *ngFor="let player of seededPlayers" [value]="player" (click)="scrollToTopPlayer()">
+              {{player.playerName}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
   </ng-container>
   <ng-template #notLoaded>

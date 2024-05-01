@@ -10,6 +10,8 @@ export interface Dataset {
 export interface Roster {
   playerId: number;
   playerName: string;
+  matchId?: number; // match id of first round for player
+  alignment?: ScrollLogicalPosition; // alignment used to scroll to player on bracket
 }
 
 export interface BracketManagerData {

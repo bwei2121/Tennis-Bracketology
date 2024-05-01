@@ -49,3 +49,19 @@
 button {
   background-color: #9CB879;
 }
+
+// keyframe for animation for briefly highlighting player
+@keyframes tempHighlight {
+  0% {
+    background-color: #9CB879; // tennis green color
+  }
+  100% {
+    background-color: white;
+  }
+}
+
+// animation for briefly highlighting player 
+.playerHighlight {
+  animation-name: tempHighlight; 
+  animation-duration: 3s;
+}

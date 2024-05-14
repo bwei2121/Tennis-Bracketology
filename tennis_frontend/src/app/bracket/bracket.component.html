@@ -6,7 +6,7 @@
       <ng-template [ngIf]="type=='predict'">
         <button mat-button class="margin" (click)="sendBracketInfo()">Save Bracket</button>
       </ng-template>
-      <div>
+      <div *ngIf="!viewQF">
         <h4>View a Seeded Player's POV:</h4>
         <mat-form-field>
           <mat-label>Select Player</mat-label>
@@ -17,6 +17,14 @@
           </mat-select>
         </mat-form-field>
       </div>
+      <ng-template [ngIf]="type=='view'">
+        <div *ngIf="viewQF; else notViewQF">
+          <button mat-button class="margin" (click)="switchBracketView()">Switch to Full Bracket View</button>
+        </div>
+        <ng-template #notViewQF>
+          <button mat-button class="margin" (click)="switchBracketView()" [disabled]="!isEnabledViewQF">Switch to QF and Onwards View</button>
+        </ng-template>  
+      </ng-template>
     </div>
   </ng-container>
   <ng-template #notLoaded>

@@ -28,6 +28,7 @@ export class BracketComponent implements OnInit {
   @Input() tournament = '';
   TOURNAMENT_ID: number = 0;
   STAGE_ID: number = 0;
+  GROUP_ID: number = 0;
   @ViewChild('bracket') bracket!: ElementRef;
   @Output() bracketInfo = new EventEmitter<[BracketsManager, Dataset]>();
   bracketData!: [BracketsManager, Dataset];
@@ -35,6 +36,9 @@ export class BracketComponent implements OnInit {
   loadedBracketData: boolean = false;
   seededPlayers!: Roster[];
   selectedPlayer!: Roster;
+  isEnabledViewQF: boolean = true;
+  managerQF!: BracketsManager;
+  viewQF: boolean = false;
 
   constructor(private dialog: MatDialog, private renderer: Renderer2, private router: Router) {}
 
@@ -83,16 +87,16 @@ export class BracketComponent implements OnInit {
   }
 
   /**
-   * Create a tennis bracket using brackets-manager library and formatting data that can be usable by brackets-viewer library
-   * @param dataset: backend data representing tennis bracket data for a tournament
-   * @param matchResults: match information to update tennis bracket after initial matchups
-   * @param method: method of retrieving bracket data (either through webscraping or database)
-   * @returns Promise<BracketManagerData>: data format usable by brackets-viewer library
+   * Create BracketsManger object which stores tennis bracket data for tournament (either full bracket or QF and onwards bracket)
+   * @param dataset: backend data representing tennis bracket data for a tournament 
+   * @param roster: player roster for bracket 
+   * @param bracketType: type of bracket (full bracket or QF and onwards bracket) 
+   * @returns BracketsManager object for bracket
    */
-  async processBracketData(dataset: Dataset, matchResults: MatchInfo[], method: string): Promise<ProcessData> {
+  async createBracketDatabase(dataset: Dataset, roster: Roster[], bracketType: string): Promise<BracketsManager> {
     const db = new InMemoryDatabase();
     const manager = new BracketsManager(db);
-  
+
     db.setData({
       participant: [],
       stage: [],
@@ -103,15 +107,28 @@ export class BracketComponent implements OnInit {
     });
   
     await manager.create.stage({
-      name: dataset.title,
-      tournamentId: this.TOURNAMENT_ID,
-      type: dataset.type,
-      seeding: this.createSeeding(dataset.roster),
+      name: `${dataset.title} ${bracketType}`,
+      tournamentId: 1,
+      type: 'single_elimination',
+      seeding: this.createSeeding(roster),
       settings: {
         seedOrdering: ['natural'],
-        size: getNearestPowerOfTwo(dataset.roster.length),
+        size: getNearestPowerOfTwo(roster.length),
       },
     });
+
+    return manager;
+  }
+
+  /**
+   * Create a tennis bracket using brackets-manager library and formatting data that can be usable by brackets-viewer library
+   * @param dataset: backend data representing tennis bracket data for a tournament
+   * @param matchResults: match information to update tennis bracket after initial matchups
+   * @param method: method of retrieving bracket data (either through webscraping or database)
+   * @returns Promise<BracketManagerData>: data format usable by brackets-viewer library
+   */
+  async processBracketData(dataset: Dataset, matchResults: MatchInfo[], method: string): Promise<ProcessData> {
+    const manager=await this.createBracketDatabase(dataset, dataset.roster, "(Full Bracket)");
   
     // choose seeded player's pov to view bracket
     this.seededPlayers=this.findSeededPlayers(dataset.roster);
@@ -129,6 +146,10 @@ export class BracketComponent implements OnInit {
       await this.updateMatches(matchResults, manager); 
     }
     
+    // create bracket from Quarterfinals onwards
+    const totalRounds=Math.log(getNearestPowerOfTwo(dataset.roster.length))/Math.log(2);
+    this.isEnabledViewQF=await this.checkForQFView(manager, totalRounds-2, dataset);
+
     const data = await manager.get.stageData(this.STAGE_ID);
     this.bracketData=[manager, dataset];
     
@@ -492,5 +513,120 @@ export class BracketComponent implements OnInit {
     this.renderer.listen(playerHTML, 'animationend', () => {
       playerHTML?.classList.remove('playerHighlight');
     });
+  }
+
+  /**
+   * Switches tournament bracket presented to user
+   * Either shows full bracket or QF and onwards bracket
+   */
+  async switchBracketView() {
+    // QF and onwards bracket
+    let data = await this.managerQF.get.stageData(this.STAGE_ID);
+    if(this.viewQF){ // full bracket
+      data = await this.bracketData[0].get.stageData(this.STAGE_ID);
+    }
+    const managerData: BracketManagerData = {
+      stages: data.stage,
+      matches: data.match,
+      matchGames: data.match_game,
+      participants: data.participant,
+    };
+    // erases current bracket displayed
+    this.renderer.setProperty(this.bracket.nativeElement, 'innerHTML', ''); 
+    // displays new bracket
+    window.bracketsViewer.render(managerData);
+    this.viewQF=!this.viewQF;
+  }
+
+  /**
+   * Checks if a QF and onwards bracket should be created for the user
+   * @param manager: BracketsManager object for full bracket
+   * @param roundQF: round number of the quarterfinals in the full bracket 
+   * @param dataset: dataset (includes player roster) for full bracket 
+   * @returns boolean: if full bracket has reached QF round or not
+   */
+  async checkForQFView(manager: BracketsManager, roundQF: number, dataset: Dataset): Promise<boolean> {
+    const farthestRoundCompleted=(await manager.get.currentRound(this.STAGE_ID))?.number;
+    if(farthestRoundCompleted!=null && farthestRoundCompleted<roundQF){
+      return false;
+    }
+    let matches: MatchInfo[]=[];
+    let players: Roster[]=[];
+    // quarterfinals matches
+    for(let matchesQF=1; matchesQF<=4; matchesQF++){
+      const match=await manager.find.match(this.GROUP_ID, roundQF, matchesQF);
+      const playerId1=match.opponent1?.id;
+      if(playerId1!=null){
+        players.push(this.mapPlayerIdToPlayerObject(playerId1, dataset.roster));
+      }
+      const playerId2=match.opponent2?.id;
+      if(playerId2!=null){
+        players.push(this.mapPlayerIdToPlayerObject(playerId2, dataset.roster));
+      }
+      matches.push(this.convertMatchtoMatchInfo(match, players));
+    }
+    // semifinals matches
+    for(let matchesSF=1; matchesSF<=2; matchesSF++){
+      const match=await manager.find.match(this.GROUP_ID, roundQF+1, matchesSF);
+      matches.push(this.convertMatchtoMatchInfo(match, players));
+    }
+    // finals match
+    const match=await manager.find.match(this.GROUP_ID, roundQF+2, 1);
+    matches.push(this.convertMatchtoMatchInfo(match, players));
+
+    this.managerQF=await this.createBracketDatabase(dataset, players, "(QF+ Bracket)");
+
+    await this.updateMatches(matches, this.managerQF); 
+
+    return true;
+  }
+
+  /**
+   * Gets player object (contains player id and player name) from playerId input
+   * @param playerId: id of player 
+   * @param roster: player roster in tournament
+   * @returns Roster: player object from roster parameter that contains playerId
+   */
+  mapPlayerIdToPlayerObject(playerId: Id, roster: Roster[]): Roster {
+    for(const playerObject of roster){
+      if(playerObject!=null && playerObject.playerId==playerId){
+        return playerObject;
+      }
+    }
+    return {playerId: -1, playerName: ''}; // should not reach this statement
+  }
+
+  /**
+   * Gets new player id for QF and onwards bracket based on old player id from full bracket
+   * @param playerId: id of player
+   * @param roster: roster of players in tournaent 
+   * @returns Id: new player id for QF and onwards bracket
+   */
+  mapPlayerIdToNewPlayerId(playerId: Id | null | undefined, roster: Roster[]): Id {
+    for(const [newPlayerId, playerObject] of roster.entries()){
+      if(playerObject!=null && playerObject.playerId==playerId){
+        return newPlayerId;
+      }
+    }
+    return -1; // should not reach this statement
+  }
+
+  /**
+   * Converts Match object from full bracket to MatchInfo object that contains match information for QF and onwards bracket
+   * @param match: match information from full bracket 
+   * @param roster: player roster from QF and onwards bracket
+   * @returns MatchInfo: creates match information to display on QF and onwards bracket
+   */
+  convertMatchtoMatchInfo(match: Match, roster: Roster[]): MatchInfo {
+    const id1: number=Number(this.mapPlayerIdToNewPlayerId(match.opponent1?.id, roster));
+    const id2: number=Number(this.mapPlayerIdToNewPlayerId(match.opponent2?.id, roster));
+    let opponent1: MatchResult = {score: match.opponent1?.score, result: match.opponent1?.result};
+    let opponent2: MatchResult = {score: match.opponent2?.score, result: match.opponent2?.result};
+    return {
+      id1: id1,
+      id2: id2,
+      opponent1: opponent1,
+      opponent2: opponent2,
+    }
   }
 }

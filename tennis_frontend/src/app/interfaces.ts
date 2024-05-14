@@ -41,7 +41,7 @@ export interface MatchInfo {
 }
 
 export interface MatchResult {
-  score: number;
+  score: number | undefined;
   result?: Result;
 }
 

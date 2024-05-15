@@ -191,7 +191,7 @@ def getMatchResultInfo(player1, player2, scoreHTML, matchList, playerList):
   else:
     opp1={"score": scoreLoser}
     opp2={"score": scoreWinner, "result": 'win'}
-    matchList.append({"id1": playerId1, "id2": playerId2, "opponent1": opp1, "opponent2": opp2})
+    matchList.append({"id1": playerId2, "id2": playerId1, "opponent1": opp1, "opponent2": opp2})
   return matchList
 
 # Gets list of match results for the tennis bracket from the related HTML

@@ -87,10 +87,10 @@ export class BracketComponent implements OnInit {
   }
 
   /**
-   * Create BracketsManger object which stores tennis bracket data for tournament (either full bracket or QF and onwards bracket)
+   * Create BracketsManger object which stores tennis bracket data for tournament (either full bracket or QF+ bracket)
    * @param dataset: backend data representing tennis bracket data for a tournament 
    * @param roster: player roster for bracket 
-   * @param bracketType: type of bracket (full bracket or QF and onwards bracket) 
+   * @param bracketType: type of bracket (full bracket or QF+ bracket) 
    * @returns BracketsManager object for bracket
    */
   async createBracketDatabase(dataset: Dataset, roster: Roster[], bracketType: string): Promise<BracketsManager> {
@@ -146,7 +146,7 @@ export class BracketComponent implements OnInit {
       await this.updateMatches(matchResults, manager); 
     }
     
-    // create bracket from Quarterfinals onwards
+    // create bracket from Quarterfinals+
     const totalRounds=Math.log(getNearestPowerOfTwo(dataset.roster.length))/Math.log(2);
     this.isEnabledViewQF=await this.checkForQFView(manager, totalRounds-2, dataset);
 
@@ -517,10 +517,10 @@ export class BracketComponent implements OnInit {
 
   /**
    * Switches tournament bracket presented to user
-   * Either shows full bracket or QF and onwards bracket
+   * Either shows full bracket or QF+ bracket
    */
   async switchBracketView() {
-    // QF and onwards bracket
+    // QF+ bracket
     let data = await this.managerQF.get.stageData(this.STAGE_ID);
     if(this.viewQF){ // full bracket
       data = await this.bracketData[0].get.stageData(this.STAGE_ID);
@@ -539,7 +539,7 @@ export class BracketComponent implements OnInit {
   }
 
   /**
-   * Checks if a QF and onwards bracket should be created for the user
+   * Checks if a QF+ bracket should be created for the user
    * @param manager: BracketsManager object for full bracket
    * @param roundQF: round number of the quarterfinals in the full bracket 
    * @param dataset: dataset (includes player roster) for full bracket 
@@ -597,10 +597,10 @@ export class BracketComponent implements OnInit {
   }
 
   /**
-   * Gets new player id for QF and onwards bracket based on old player id from full bracket
+   * Gets new player id for QF+ bracket based on old player id from full bracket
    * @param playerId: id of player
    * @param roster: roster of players in tournaent 
-   * @returns Id: new player id for QF and onwards bracket
+   * @returns Id: new player id for QF+ bracket
    */
   mapPlayerIdToNewPlayerId(playerId: Id | null | undefined, roster: Roster[]): Id {
     for(const [newPlayerId, playerObject] of roster.entries()){
@@ -612,10 +612,10 @@ export class BracketComponent implements OnInit {
   }
 
   /**
-   * Converts Match object from full bracket to MatchInfo object that contains match information for QF and onwards bracket
+   * Converts Match object from full bracket to MatchInfo object that contains match information for QF+ bracket
    * @param match: match information from full bracket 
-   * @param roster: player roster from QF and onwards bracket
-   * @returns MatchInfo: creates match information to display on QF and onwards bracket
+   * @param roster: player roster from QF+ bracket
+   * @returns MatchInfo: creates match information to display on QF+ bracket
    */
   convertMatchtoMatchInfo(match: Match, roster: Roster[]): MatchInfo {
     const id1: number=Number(this.mapPlayerIdToNewPlayerId(match.opponent1?.id, roster));

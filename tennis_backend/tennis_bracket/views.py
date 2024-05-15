@@ -5,7 +5,7 @@ from django.shortcuts import render
 from tennis_scraper import getAllTournaments, getBracketInfo, getH2H, getPlayerRank, parsedTitle
 from tennis_bracket.serializers import BracketSerializer
 from tennis_bracket.models import BracketData
-from tennis_bracket.backend_functions import getStoredBracket
+from tennis_bracket.backend_functions import getStoredBracket, getPredictionRate
 
 # Create your views here.
 class BracketInformation(APIView):
@@ -14,14 +14,6 @@ class BracketInformation(APIView):
     tournament=request.GET['tournament']
     type=request.GET['type']
     parsedTournament=parsedTitle(tournament)
-    if(type=="predict"):
-      bracketSet=BracketData.objects.filter(title=parsedTournament)
-      if(bracketSet):
-        # get most updated bracket of tournament
-        bracket=bracketSet.last()
-        # get user created bracket data from database
-        data=getStoredBracket(bracket, parsedTournament)
-        return HttpResponse(json.dumps(data))
     # get bracket data from web scraping
     bracketData=getBracketInfo(f"https://www.tennisabstract.com/current/{tournament}.html")
     if(bracketData==None):
@@ -29,6 +21,17 @@ class BracketInformation(APIView):
     title=bracketData[0]
     roster=bracketData[1]
     results=bracketData[2]
+    if(type=="predict"):
+      bracketSet=BracketData.objects.filter(title=parsedTournament)
+      if(bracketSet):
+        # get most updated bracket of tournament
+        bracket=bracketSet.last()
+        # get user created bracket data from database
+        data=getStoredBracket(bracket, parsedTournament)
+        # get user prediction rate for tournament
+        predictionRate=getPredictionRate(data["results"], results)
+        data.update(predictionRate)
+        return HttpResponse(json.dumps(data))
     data={"title": title, "roster": roster, "results": results, "method": "webscrape"}
     return HttpResponse(json.dumps(data))
   

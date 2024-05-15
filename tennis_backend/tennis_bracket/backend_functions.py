@@ -66,3 +66,41 @@ def detectDifferenceInScores(player1, player2):
     scoreString2=str(score2)
     return len(scoreString1)!=len(scoreString2)
   return False
+
+# Gets the amount of predictions right by user, only considers matches that have already happened
+# Parameter predictedResults: user predicted tournament reults
+# Parameter actualResults: actual tournament results
+# Returns dictionary containing user prediction rate
+def getPredictionRate(predictedResults, actualResults):
+  correctPredictions=0
+  totalPredictions=0
+  for predictedMatch in predictedResults:
+    id1=predictedMatch["id1"]
+    id2=predictedMatch["id2"]
+    opponent1=predictedMatch["opponent1"]
+    opponent2=predictedMatch["opponent2"]
+    if(id1 and id2 and opponent1 and opponent2):
+      opponent1Result=opponent1["result"]
+      opponent2Result=opponent2["result"]
+      if(opponent1Result or opponent2Result):
+        for actualMatch in actualResults:
+          id1Actual=actualMatch["id1"]
+          id2Actual=actualMatch["id2"]
+          if(id1==id1Actual and id2==id2Actual):
+            opponent1Actual=actualMatch["opponent1"]
+            opponent2Actual=actualMatch["opponent2"]
+            # winner only will contain "result" key in opponent1Actual or opponent2Actual objects
+            if(("result" in opponent1Actual and opponent1Result=="win") or ("result" in opponent2Actual and opponent2Result=="win")):
+              correctPredictions+=1
+            totalPredictions+=1
+            break
+          elif(id1==id2Actual and id2==id1Actual):
+            opponent1Actual=actualMatch["opponent1"]
+            opponent2Actual=actualMatch["opponent2"]
+            # winner only will contain "result" key in opponent1Actual or opponent2Actual objects
+            if(("result" in opponent1Actual and opponent2Result=="win") or ("result" in opponent2Actual and opponent1Result=="win")):
+              correctPredictions+=1
+            totalPredictions+=1
+            break
+  predictionRate={"correctPredictions": correctPredictions, "totalPredictions": totalPredictions}
+  return {"predictionRate": predictionRate}

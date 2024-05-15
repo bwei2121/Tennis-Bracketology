@@ -3,7 +3,7 @@ import axios from 'axios';
 import { BracketsManager } from "brackets-manager";
 import { getNearestPowerOfTwo } from "brackets-manager/dist/helpers";
 import { InMemoryDatabase } from '../storage/memory';
-import { BackendData, BracketManagerData, Dataset, DialogData, MatchInfo, MatchResult, ProcessData, Roster } from "../interfaces";
+import { BackendData, BracketManagerData, Dataset, DialogData, MatchInfo, MatchResult, PredictionRate, ProcessData, Roster } from "../interfaces";
 import { Id, Match, Result } from "brackets-model";
 import { MatDialog } from "@angular/material/dialog";
 import { MatchOverviewDialog } from "../match-dialog/match-dialog.components";
@@ -39,6 +39,8 @@ export class BracketComponent implements OnInit {
   isEnabledViewQF: boolean = true;
   managerQF!: BracketsManager;
   viewQF: boolean = false;
+  correctPredictions: number = 0;
+  totalPredictions: number = 0;
 
   constructor(private dialog: MatDialog, private renderer: Renderer2, private router: Router) {}
 
@@ -57,7 +59,8 @@ export class BracketComponent implements OnInit {
       const roster: Roster[]=bracketDataset['roster'];
       const results: MatchInfo[]=bracketDataset['results'];
       const method: string=bracketDataset['method'];
-      this.processBracketData(this.createDataForBracketViewer(roster, title), results, method).then(async (data: ProcessData) => {
+      const predictionRate: PredictionRate | null=bracketDataset['predictionRate'];
+      this.processBracketData(this.createDataForBracketViewer(roster, title), results, method, predictionRate).then(async (data: ProcessData) => {
         this.loadedBracketData=true;
         window.bracketsViewer.render(data.managerData);
         this.addHTMLAttributes();
@@ -125,10 +128,12 @@ export class BracketComponent implements OnInit {
    * @param dataset: backend data representing tennis bracket data for a tournament
    * @param matchResults: match information to update tennis bracket after initial matchups
    * @param method: method of retrieving bracket data (either through webscraping or database)
+   * @param predictionRate: user prediction rate for predicted brackets only
    * @returns Promise<BracketManagerData>: data format usable by brackets-viewer library
    */
-  async processBracketData(dataset: Dataset, matchResults: MatchInfo[], method: string): Promise<ProcessData> {
-    const manager=await this.createBracketDatabase(dataset, dataset.roster, "(Full Bracket)");
+  async processBracketData(dataset: Dataset, matchResults: MatchInfo[], method: string, predictionRate: PredictionRate | null): Promise<ProcessData> {
+    // bracketType used to be "(Full Bracket)", change to "" so title of stored brackets are just name of tournament
+    const manager=await this.createBracketDatabase(dataset, dataset.roster, "");
   
     // choose seeded player's pov to view bracket
     this.seededPlayers=this.findSeededPlayers(dataset.roster);
@@ -136,6 +141,12 @@ export class BracketComponent implements OnInit {
     // allow user to predict matches
     if(this.type=='predict'){
       window.bracketsViewer.onMatchClicked = async (match: Match) => await this.openDialog(match, dataset.roster, this.dialog, manager);
+    }
+
+    // show user prediction rate for user predicted brackets
+    if(predictionRate){
+      this.correctPredictions=predictionRate?.correctPredictions;
+      this.totalPredictions=predictionRate?.totalPredictions;
     }
     
     // add images for players

@@ -31,6 +31,7 @@ export interface BackendData {
   roster: Roster[];
   results: MatchInfo[];
   method: string;
+  predictionRate: PredictionRate | null;
 }
 
 export interface MatchInfo {
@@ -86,4 +87,9 @@ export interface License {
   licenseName: string;
   copyright: string;
   licenseText: string;
+}
+
+export interface PredictionRate {
+  correctPredictions: number;
+  totalPredictions: number;
 }

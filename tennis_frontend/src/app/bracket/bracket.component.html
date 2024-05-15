@@ -25,6 +25,10 @@
           <button mat-button class="margin" (click)="switchBracketView()" [disabled]="!isEnabledViewQF">Switch to QF+ View</button>
         </ng-template>  
       </ng-template>
+      <ng-template [ngIf]="type=='predict'">
+        <h3 class="center">Prediction Rate: {{correctPredictions}}/{{totalPredictions}}</h3>
+        <div class="center smallFontSize">*Prediction Rate counts only matches that have already happened</div>
+      </ng-template>
     </div>
   </ng-container>
   <ng-template #notLoaded>

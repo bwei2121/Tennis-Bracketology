@@ -18,7 +18,7 @@ export class PredictBracketComponent {
   tournament: string = '';
   manager!: BracketsManager;
   tournamentData!: Dataset;
-  STAGE_ID: number = 0;
+  TOURNAMENT_ID: number = 1;
 
   constructor(private route: ActivatedRoute) {}
 
@@ -46,7 +46,7 @@ export class PredictBracketComponent {
    * Get filtered bracket information and sends to database
    */
   async getAllMatchData() {
-    const data=await this.manager.get.stageData(this.STAGE_ID);
+    const data=await this.manager.get.tournamentData(this.TOURNAMENT_ID);
     await axios.post('http://localhost:8000/bracket', this.filterBracketMatches(data.match), {
       headers: {
         "Content-Type": "application/json"
@@ -62,10 +62,12 @@ export class PredictBracketComponent {
   filterBracketMatches(matches: Match[]) {
     let filterMatches=[];
     for(const match of matches){
+      const roundNumber=Number(match.round_id)+1;
       const id=match.id;
       const matchInfo={'matchId': id,
                        'player1': this.filterPlayer(match.opponent1), 
-                       'player2': this.filterPlayer(match.opponent2)};
+                       'player2': this.filterPlayer(match.opponent2),
+                       'roundNumber': roundNumber};
       filterMatches.push(matchInfo);
     }
     let roster=[];

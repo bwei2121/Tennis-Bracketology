@@ -148,9 +148,19 @@ def checkForRoundName(content, index):
 # Find important match result information in the HTML that represents the tennis matches
 # Parameter content: html related to match result information
 # Parameter index: index to start search of match related information in HTML
-# Return tuple of both players, html related to match score, and new index to search for next match in content HTML
+# Return tuple of round number, both players, html related to match score, and new index to search for next match in content HTML
 def findMatchResultInfo(content, index):
-  newIndex=index+1
+  newIndex=index
+  round=content[newIndex]
+  colonIndex=round.find(":")
+  while(colonIndex==-1):
+    newIndex+=1
+    round=content[newIndex]
+    if(round.name!="br"):
+      colonIndex=round.find(":")
+  roundIndex=round.find(":")-1
+  roundNumber=int(round[roundIndex])
+  newIndex+=1
   player1=content[newIndex]
   while(player1.name!='a' or player1.text=='d.'):
     newIndex+=1
@@ -169,16 +179,17 @@ def findMatchResultInfo(content, index):
   while(not hasScore(scoreHTML)):
     newIndex+=1
     scoreHTML=content[newIndex]
-  return (newIndex, (player1, player2, scoreHTML))
+  return (newIndex, (roundNumber, player1, player2, scoreHTML))
 
 # Get match result information to add to match list for the tennis bracket
+# Parameter roundNumber: round number of match in tournament bracket
 # Paramater player1: player 1 in the match
 # Paramater player2: player 2 in the match
 # Paramater scoreHTML: html related to match score
 # Parameter matchList: list of match results for tennis bracket
 # Paramter playerList: list of players and corresponding ids
 # Returns matchList with new match result
-def getMatchResultInfo(player1, player2, scoreHTML, matchList, playerList):
+def getMatchResultInfo(roundNumber, player1, player2, scoreHTML, matchList, playerList):
   playerId1=searchIDForPlayer(player1.text, playerList)
   playerId2=searchIDForPlayer(player2.text, playerList)
   filteredScore=filterScore(scoreHTML)
@@ -187,11 +198,11 @@ def getMatchResultInfo(player1, player2, scoreHTML, matchList, playerList):
   if(playerId1<playerId2):
     opp1={"score": scoreWinner, "result": 'win'}
     opp2={"score": scoreLoser}
-    matchList.append({"id1": playerId1, "id2": playerId2, "opponent1": opp1, "opponent2": opp2})
+    matchList.append({"roundNumber": roundNumber, "id1": playerId1, "id2": playerId2, "opponent1": opp1, "opponent2": opp2})
   else:
     opp1={"score": scoreLoser}
     opp2={"score": scoreWinner, "result": 'win'}
-    matchList.append({"id1": playerId2, "id2": playerId1, "opponent1": opp1, "opponent2": opp2})
+    matchList.append({"roundNumber": roundNumber, "id1": playerId2, "id2": playerId1, "opponent1": opp1, "opponent2": opp2})
   return matchList
 
 # Gets list of match results for the tennis bracket from the related HTML
@@ -205,8 +216,8 @@ def getCompletedMatchList(content, playerList):
     if(checkForRoundName(content, index)):
       (newIndex, matchResult)=findMatchResultInfo(content, index)
       if(matchResult!=None):
-        (player1, player2, scoreHTML)=matchResult
-        matchList=getMatchResultInfo(player1, player2, scoreHTML, matchList, playerList)
+        (roundNumber, player1, player2, scoreHTML)=matchResult
+        matchList=getMatchResultInfo(roundNumber, player1, player2, scoreHTML, matchList, playerList)
       index+=(newIndex-index)
     elif("Q1" in content[index] or "Q2" in content[index]): # rounds not needed for bracket
       break

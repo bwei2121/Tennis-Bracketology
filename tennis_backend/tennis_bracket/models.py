@@ -19,6 +19,7 @@ class SeedingData(models.Model):
 
 # represents match data in a bracket
 class MatchData(models.Model):
+  roundNumber=models.IntegerField()
   player1=models.OneToOneField(PlayerData, on_delete=models.CASCADE, related_name='player1', blank=True, null=True)
   player2=models.OneToOneField(PlayerData, on_delete=models.CASCADE, related_name='player2', blank=True, null=True)
   matchId=models.IntegerField()

@@ -42,6 +42,7 @@ class BracketSerializer(serializers.ModelSerializer):
         bracketSet.delete()
       bracket=BracketData.objects.create(title=title)
       for match in matches:
+        roundNumber=match['roundNumber']
         player1=match['player1']
         player2=match['player2']
         player1Object=None
@@ -50,7 +51,7 @@ class BracketSerializer(serializers.ModelSerializer):
           player1Object=createPlayerDataObject(player1)
         if(player2!=None):
           player2Object=createPlayerDataObject(player2)
-        MatchData.objects.create(matches=bracket, matchId=match['matchId'], player1=player1Object, player2=player2Object)
+        MatchData.objects.create(matches=bracket, matchId=match['matchId'], player1=player1Object, player2=player2Object, roundNumber=roundNumber)
       seedId=0
       for player in roster:
         playerId=None

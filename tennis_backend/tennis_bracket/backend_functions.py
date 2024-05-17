@@ -24,6 +24,7 @@ def getStoredBracket(bracket, parsedTournament):
   tournamentMatches=[]
   for match in matchSet:
     matchData={
+      "roundNumber": match.roundNumber,
       "id1": None,
       "id2": None,
       "opponent1": None,

@@ -31,6 +31,8 @@ class BracketInformation(APIView):
         # get user prediction rate for tournament
         predictionRateData=getPredictionRate(data["results"], results)
         data.update(predictionRateData)
+        # update players in "Qualifier Player" spots on bracket if necessary
+        data.update({"roster": roster})
         return HttpResponse(json.dumps(data))
     data={"title": title, "roster": roster, "results": results, "method": "webscrape", "predictionRate": None, "updatePredictionsFrontend": None}
     return HttpResponse(json.dumps(data))

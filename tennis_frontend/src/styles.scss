@@ -3,6 +3,11 @@
 // angular popups works normally with this import
 @import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
 
+// colors frequently used
+:root {
+  --tennis-color: #9CB879;
+}
+
 // remove bracket-viewers seeds to add custom seeds from backend
 .brackets-viewer .participant .name>span {
   display: none;
@@ -47,13 +52,13 @@
 
 // standardize button color to tennis green color
 button {
-  background-color: #9CB879;
+  background-color: var(--tennis-color);
 }
 
 // keyframe for animation for briefly highlighting player
 @keyframes tempHighlight {
   0% {
-    background-color: #9CB879; // tennis green color
+    background-color: var(--tennis-color); // tennis green color
   }
   100% {
     background-color: white;

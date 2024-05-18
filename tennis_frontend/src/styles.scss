@@ -65,3 +65,14 @@ button {
   animation-name: tempHighlight; 
   animation-duration: 3s;
 }
+
+// highlight predicted winner names of correct predictions
+.correctPrediction {
+  color: var(--win-color);
+}
+
+// highlight and strikethrough predicted winner names of incorrect predictions
+.incorrectPrediction {
+  color: var(--loss-color);
+  text-decoration: line-through;
+}

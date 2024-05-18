@@ -32,6 +32,7 @@ export interface BackendData {
   results: MatchInfo[];
   method: string;
   predictionRate: PredictionRate | null;
+  updatePredictionsFrontend: FrontendPredictionUpdate[] | null;
 }
 
 export interface MatchInfo {
@@ -92,4 +93,11 @@ export interface License {
 export interface PredictionRate {
   correctPredictions: number;
   totalPredictions: number;
+}
+
+export interface FrontendPredictionUpdate {
+  matchId: number;
+  result: string;
+  playerNumber: number;
+  playerId: number;
 }

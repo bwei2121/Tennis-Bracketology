@@ -1,7 +1,7 @@
 <div class="bracket">
   <div #bracket class="brackets-viewer"></div>
   <ng-container *ngIf="loadedBracketData; else notLoaded">
-    <div class="button">
+    <div class="button center">
       <button mat-button (click)="navigateToChooseTournaments()">Choose Another Tournament</button>
       <ng-template [ngIf]="type=='predict'">
         <button mat-button class="margin" (click)="sendBracketInfo()">Save Bracket</button>
@@ -26,8 +26,9 @@
         </ng-template>  
       </ng-template>
       <ng-template [ngIf]="type=='predict'">
-        <h3 class="center">Prediction Rate: {{correctPredictions}}/{{totalPredictions}}</h3>
-        <div class="center smallFontSize">*Prediction Rate counts only matches that have already happened</div>
+        <!-- shows user prediction rate -->
+        <h3>Prediction Rate: {{correctPredictions}}/{{totalPredictions}}</h3>
+        <div class="smallFontSize">*Prediction Rate counts only matches that have already happened or matches with winners that are impossible to happen</div>
       </ng-template>
     </div>
   </ng-container>

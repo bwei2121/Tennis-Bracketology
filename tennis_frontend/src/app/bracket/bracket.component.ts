@@ -3,7 +3,7 @@ import axios from 'axios';
 import { BracketsManager } from "brackets-manager";
 import { getNearestPowerOfTwo } from "brackets-manager/dist/helpers";
 import { InMemoryDatabase } from '../storage/memory';
-import { BackendData, BracketManagerData, Dataset, DialogData, MatchInfo, MatchResult, PredictionRate, ProcessData, Roster } from "../interfaces";
+import { BackendData, BracketManagerData, Dataset, DialogData, FrontendPredictionUpdate, MatchInfo, MatchResult, PredictionRate, ProcessData, Roster } from "../interfaces";
 import { Id, Match, Result } from "brackets-model";
 import { MatDialog } from "@angular/material/dialog";
 import { MatchOverviewDialog } from "../match-dialog/match-dialog.components";
@@ -60,10 +60,15 @@ export class BracketComponent implements OnInit {
       const results: MatchInfo[]=bracketDataset['results'];
       const method: string=bracketDataset['method'];
       const predictionRate: PredictionRate | null=bracketDataset['predictionRate'];
+      const updatePredictionsFrontend: FrontendPredictionUpdate[] | null=bracketDataset['updatePredictionsFrontend'];
       this.processBracketData(this.createDataForBracketViewer(roster, title), results, method, predictionRate).then(async (data: ProcessData) => {
         this.loadedBracketData=true;
         window.bracketsViewer.render(data.managerData);
         this.addHTMLAttributes();
+        // update user predictions on frontend to show which predictions are correct/inccorect
+        if(updatePredictionsFrontend){
+          this.updateFrontendUserPredictions(this.bracketData[0], updatePredictionsFrontend);
+        }
       });
     }
   }
@@ -638,6 +643,55 @@ export class BracketComponent implements OnInit {
       id2: id2,
       opponent1: opponent1,
       opponent2: opponent2,
+    }
+  }
+
+  /**
+   * Updates predicted matches on frontend, shows if user predicted matches correctly/incorrectly
+   * @param manager: BracketsManager object containing predicted bracket 
+   * @param updatePredictionsFrontend: contains predicted matches to be updated on frontend, showing if user predicted match correctly/incorrectly  
+   * @returns Promise<void>
+   */
+  async updateFrontendUserPredictions(manager: BracketsManager, updatePredictionsFrontend: FrontendPredictionUpdate[]): Promise<void> {
+    for(const match of updatePredictionsFrontend){
+      const matchContainer=this.addHTMLAttributes(`${match.matchId}`);
+      if(match.result=="correct"){ // name highlighted with var(--win-color)
+        this.renderer.addClass(matchContainer?.children[0].children[match.playerNumber].children[0], 'correctPrediction');
+      }
+      else{ // name highlighted with var(--loss-color) and struck through
+        this.renderer.addClass(matchContainer?.children[0].children[match.playerNumber].children[0], 'incorrectPrediction');
+        this.updateFutureIncorrectPredictions(manager, match.playerId, match.matchId);
+      }
+    }
+  }
+
+  /**
+   * Updates future predicted matches with winners that are impossible to happen on frontend, adds to totalPredictions variable in user prediction rate
+   * @param manager: BracketsManager object containing predicted bracket 
+   * @param playerId: id of predicted winning player 
+   * @param matchId: id of predicted match
+   * @returns Promise<void>
+   */
+  async updateFutureIncorrectPredictions(manager: BracketsManager, playerId: number, matchId: number): Promise<void> {
+    let updateMoreGames=true;
+    let newMatchId=matchId;
+    while(updateMoreGames){
+      const match=await manager.find.nextMatches(newMatchId);
+      if(match[0].opponent1?.id==playerId && match[0].opponent1?.result=="win"){
+        newMatchId=Number(match[0].id);
+        const matchContainer=this.addHTMLAttributes(`${newMatchId}`);
+        this.renderer.addClass(matchContainer?.children[0].children[1].children[0], 'incorrectPrediction');
+        this.totalPredictions+=1; // original totalPredictions variable does not account for future matches that are impossible to happen
+      }
+      else if(match[0].opponent2?.id==playerId && match[0].opponent2?.result=="win"){
+        newMatchId=Number(match[0].id);
+        const matchContainer=this.addHTMLAttributes(`${newMatchId}`);
+        this.renderer.addClass(matchContainer?.children[0].children[2].children[0], 'incorrectPrediction');
+        this.totalPredictions+=1; // original totalPredictions variable does not account for future matches that are impossible to happen
+      }
+      else{
+        updateMoreGames=false;
+      }
     }
   }
 }

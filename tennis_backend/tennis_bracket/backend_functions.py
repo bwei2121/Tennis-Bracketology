@@ -25,6 +25,7 @@ def getStoredBracket(bracket, parsedTournament):
   for match in matchSet:
     matchData={
       "roundNumber": match.roundNumber,
+      "matchId": match.matchId,
       "id1": None,
       "id2": None,
       "opponent1": None,
@@ -75,33 +76,60 @@ def detectDifferenceInScores(player1, player2):
 def getPredictionRate(predictedResults, actualResults):
   correctPredictions=0
   totalPredictions=0
+  updatePredictionsFrontend=[]
   for predictedMatch in predictedResults:
+    roundNumber=predictedMatch["roundNumber"]
+    matchId=predictedMatch["matchId"]
     id1=predictedMatch["id1"]
     id2=predictedMatch["id2"]
     opponent1=predictedMatch["opponent1"]
     opponent2=predictedMatch["opponent2"]
-    if(id1 and id2 and opponent1 and opponent2):
+    if(id1!=None and id2!=None and opponent1 and opponent2):
       opponent1Result=opponent1["result"]
       opponent2Result=opponent2["result"]
       if(opponent1Result or opponent2Result):
         for actualMatch in actualResults:
+          roundNumberActual=actualMatch["roundNumber"]
           id1Actual=actualMatch["id1"]
           id2Actual=actualMatch["id2"]
-          if(id1==id1Actual and id2==id2Actual):
+          if(roundNumber==roundNumberActual):
             opponent1Actual=actualMatch["opponent1"]
             opponent2Actual=actualMatch["opponent2"]
-            # winner only will contain "result" key in opponent1Actual or opponent2Actual objects
-            if(("result" in opponent1Actual and opponent1Result=="win") or ("result" in opponent2Actual and opponent2Result=="win")):
-              correctPredictions+=1
-            totalPredictions+=1
-            break
-          elif(id1==id2Actual and id2==id1Actual):
-            opponent1Actual=actualMatch["opponent1"]
-            opponent2Actual=actualMatch["opponent2"]
-            # winner only will contain "result" key in opponent1Actual or opponent2Actual objects
-            if(("result" in opponent1Actual and opponent2Result=="win") or ("result" in opponent2Actual and opponent1Result=="win")):
-              correctPredictions+=1
-            totalPredictions+=1
-            break
+            if(id1==id1Actual and opponent1Result=="win"):
+              # winner only will contain "result" key in opponent1Actual or opponent2Actual objects
+              if("result" in opponent1Actual):
+                updatePredictionsFrontend.append({"matchId": matchId, "result": "correct", "playerNumber": 1, 'playerId': id1})
+                correctPredictions+=1
+              else: # user incorrectly picked opponent 1 as winner
+                updatePredictionsFrontend.append({"matchId": matchId, "result": "incorrect", "playerNumber": 1, 'playerId': id1})
+              totalPredictions+=1
+              break
+            elif(id2==id2Actual and opponent2Result=="win"):
+              # winner only will contain "result" key in opponent1Actual or opponent2Actual objects
+              if("result" in opponent2Actual):
+                updatePredictionsFrontend.append({"matchId": matchId, "result": "correct", "playerNumber": 2, 'playerId': id2})
+                correctPredictions+=1
+              else: # user incorrectly picked opponent 2 as winner
+                updatePredictionsFrontend.append({"matchId": matchId, "result": "incorrect", "playerNumber": 2, 'playerId': id2})
+              totalPredictions+=1
+              break
+            elif(id1==id2Actual and opponent1Result=="win"):
+              # winner only will contain "result" key in opponent1Actual or opponent2Actual objects
+              if("result" in opponent2Actual):
+                updatePredictionsFrontend.append({"matchId": matchId, "result": "correct", "playerNumber": 1, 'playerId': id1})
+                correctPredictions+=1
+              else: # user incorrectly picked opponent 1 as winner
+                updatePredictionsFrontend.append({"matchId": matchId, "result": "incorrect", "playerNumber": 1, 'playerId': id1})
+              totalPredictions+=1
+              break
+            elif(id2==id1Actual and opponent2Result=="win"):
+              # winner only will contain "result" key in opponent1Actual or opponent2Actual objects
+              if("result" in opponent1Actual):
+                updatePredictionsFrontend.append({"matchId": matchId, "result": "correct", "playerNumber": 2, 'playerId': id2})
+                correctPredictions+=1
+              else: # user incorrectly picked opponent 2 as winner
+                updatePredictionsFrontend.append({"matchId": matchId, "result": "incorrect", "playerNumber": 2, 'playerId': id2})
+              totalPredictions+=1
+              break
   predictionRate={"correctPredictions": correctPredictions, "totalPredictions": totalPredictions}
-  return {"predictionRate": predictionRate}
+  return {"predictionRate": predictionRate, "updatePredictionsFrontend": updatePredictionsFrontend}

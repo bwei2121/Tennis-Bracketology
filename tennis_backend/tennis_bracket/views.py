@@ -29,10 +29,10 @@ class BracketInformation(APIView):
         # get user created bracket data from database
         data=getStoredBracket(bracket, parsedTournament)
         # get user prediction rate for tournament
-        predictionRate=getPredictionRate(data["results"], results)
-        data.update(predictionRate)
+        predictionRateData=getPredictionRate(data["results"], results)
+        data.update(predictionRateData)
         return HttpResponse(json.dumps(data))
-    data={"title": title, "roster": roster, "results": results, "method": "webscrape"}
+    data={"title": title, "roster": roster, "results": results, "method": "webscrape", "predictionRate": None, "updatePredictionsFrontend": None}
     return HttpResponse(json.dumps(data))
   
   # Save information from user created bracket

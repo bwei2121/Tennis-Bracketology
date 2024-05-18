@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 import datetime
+import math
 
 # Gets the html on the URL page chosen by user
 # Returns page content on URL given by BeautifulSoup library
@@ -148,8 +149,9 @@ def checkForRoundName(content, index):
 # Find important match result information in the HTML that represents the tennis matches
 # Parameter content: html related to match result information
 # Parameter index: index to start search of match related information in HTML
+# Parameter highestRoundNumber: highest round number in tournament bracket
 # Return tuple of round number, both players, html related to match score, and new index to search for next match in content HTML
-def findMatchResultInfo(content, index):
+def findMatchResultInfo(content, index, highestRoundNumber):
   newIndex=index
   round=content[newIndex]
   colonIndex=round.find(":")
@@ -159,7 +161,17 @@ def findMatchResultInfo(content, index):
     if(round.name!="br"):
       colonIndex=round.find(":")
   roundIndex=round.find(":")-1
-  roundNumber=int(round[roundIndex])
+  roundNumber=0
+  if(round[roundIndex]=="F"):
+    roundName=round[roundIndex-1:roundIndex+1]
+    if(roundName=="QF"):
+      roundNumber=highestRoundNumber-2
+    elif(roundName=="SF"):
+      roundNumber=highestRoundNumber-1
+    else: # roundName=="F"
+      roundNumber=highestRoundNumber
+  else:
+    roundNumber=int(round[roundIndex])
   newIndex+=1
   player1=content[newIndex]
   while(player1.name!='a' or player1.text=='d.'):
@@ -208,13 +220,14 @@ def getMatchResultInfo(roundNumber, player1, player2, scoreHTML, matchList, play
 # Gets list of match results for the tennis bracket from the related HTML
 # Paramter content: html related to tennis bracket
 # Parameter playerList: list of players and corresponding ids
+# Parameter highestRoundNumber: highest round number in tournament bracket
 # Returns list of match results for tennis bracket
-def getCompletedMatchList(content, playerList):
+def getCompletedMatchList(content, playerList, highestRoundNumber):
   matchList=[]
   index=0
   while(index<len(content)):
     if(checkForRoundName(content, index)):
-      (newIndex, matchResult)=findMatchResultInfo(content, index)
+      (newIndex, matchResult)=findMatchResultInfo(content, index, highestRoundNumber)
       if(matchResult!=None):
         (roundNumber, player1, player2, scoreHTML)=matchResult
         matchList=getMatchResultInfo(roundNumber, player1, player2, scoreHTML, matchList, playerList)
@@ -228,12 +241,13 @@ def getCompletedMatchList(content, playerList):
 # Gets the match results in the tournament bracket
 # Parameter playerList: list of playerse in the tournament
 # Parameter content: HTML of tournament URL page 
+# Parameter highestRoundNumber: highest round number in tournament bracket
 # Returns tournament title
-def getCompletedMatchResults(playerList, content):
+def getCompletedMatchResults(playerList, content, highestRoundNumber):
   resultsHTML=getContentUsingStartAndEndString(content, 'completedSingles', 'completedDoubles', 19, 7)
   soup=BeautifulSoup(resultsHTML, "html.parser")
   matchContent=soup.contents
-  matchList=getCompletedMatchList(matchContent, playerList)
+  matchList=getCompletedMatchList(matchContent, playerList, highestRoundNumber)
   return matchList
 
 # Get players in the tournament from tournament HTML page chosen by user
@@ -247,7 +261,8 @@ def getBracketInfo(url):
   playerList=getPlayerList(playersSoup)
   if(playerList==None):
     return None
-  matchList=getCompletedMatchResults(playerList, playersContent)
+  highestRoundNumber=int(math.ceil(math.log2(len(playerList))))
+  matchList=getCompletedMatchResults(playerList, playersContent, highestRoundNumber)
   return (tournamentTitle, playerList, matchList)
 
 # Get all tournament brackets that are available to view from tennisabstract.com, recent tournaments are stored at beginning of array

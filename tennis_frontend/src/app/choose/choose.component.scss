@@ -14,9 +14,10 @@
   display: flex;
   justify-content: center;
   position: sticky;
-  top: 0%;
+  top: 5vh;
   background-color: white;
   z-index: 1;
+  padding-top: 0.25em;
 }
 
 .boldTitle {

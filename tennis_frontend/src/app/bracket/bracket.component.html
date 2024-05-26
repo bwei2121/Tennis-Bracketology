@@ -2,7 +2,7 @@
 <div class="bracket">
   <div #bracket class="brackets-viewer"></div>
   <ng-container *ngIf="loadedBracketData; else notLoaded">
-    <div class="button center">
+    <div class="button center buttonWidth">
       <button mat-button (click)="navigateToChooseTournaments()">Choose Another Tournament</button>
       <ng-template [ngIf]="type=='predict'">
         <button mat-button class="margin" (click)="sendBracketInfo()">Save Bracket</button>
@@ -19,9 +19,9 @@
         </mat-form-field>
       </div>
       <ng-template [ngIf]="type=='view'">
-        <div *ngIf="viewQF; else notViewQF">
+        <ng-container *ngIf="viewQF; else notViewQF">
           <button mat-button class="margin" (click)="switchBracketView()">Switch to Full Bracket View</button>
-        </div>
+        </ng-container>
         <ng-template #notViewQF>
           <button mat-button class="margin" (click)="switchBracketView()" [disabled]="!isEnabledViewQF">Switch to QF+ View</button>
         </ng-template>  

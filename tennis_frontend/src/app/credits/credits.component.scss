@@ -3,9 +3,11 @@
 }
 
 .button {
-  top: 1em;
+  top: 5vh;
+  padding: 0.25em;
   position: sticky;
   align-self: start;
+  white-space: nowrap;
 }
 
 button:active {

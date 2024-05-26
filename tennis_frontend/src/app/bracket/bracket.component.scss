@@ -10,6 +10,7 @@
   align-self: start;
   display: flex;
   flex-direction: column;
+  padding: 0.25em;
 }
 
 .margin {
@@ -38,4 +39,8 @@ button:active {
 
 .smallFontSize {
   font-size: x-small;
+}
+
+.buttonWidth {
+  width: 25vw;
 }

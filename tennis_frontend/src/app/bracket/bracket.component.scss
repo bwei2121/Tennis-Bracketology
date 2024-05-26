@@ -21,7 +21,11 @@
 }
 
 .loading {
+  display: flex;
   width: 130%;
+  height: 95vh;
+  justify-content: center;
+  align-self: center;
 }
 
 button:active {

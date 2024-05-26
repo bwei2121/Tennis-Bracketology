@@ -1,0 +1,15 @@
+.header {
+  height: 5vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0em;
+  margin: 0em;
+  font-size: 1.5em;
+  font-weight: bold;
+  background-color: white;
+  border-bottom: 1px solid gray;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}

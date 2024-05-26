@@ -81,3 +81,9 @@ button {
   color: var(--loss-color);
   text-decoration: line-through;
 }
+
+// remove margin and padding for header
+body {
+  margin: 0;
+  padding: 0;
+}

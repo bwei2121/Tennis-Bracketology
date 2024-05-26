@@ -2,15 +2,17 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { License } from '../interfaces';
 import { Router } from '@angular/router';
+import { HeaderComponent } from "../header/header.component";
 
 @Component({
-  standalone: true,
-  selector: 'credits',
-  templateUrl: 'credits.component.html',
-  styleUrls: ['credits.component.scss'],
-  imports: [
-    CommonModule
-  ],
+    standalone: true,
+    selector: 'credits',
+    templateUrl: 'credits.component.html',
+    styleUrls: ['credits.component.scss'],
+    imports: [
+        CommonModule,
+        HeaderComponent
+    ]
 })
 export class CreditsComponent {
   licenses: License[] = [

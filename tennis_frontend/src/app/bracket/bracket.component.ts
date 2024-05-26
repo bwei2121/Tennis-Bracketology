@@ -15,13 +15,14 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatSelectModule } from "@angular/material/select";
 import { MatOptionModule } from "@angular/material/core";
 import { FormsModule } from "@angular/forms";
+import { HeaderComponent } from "../header/header.component";
 
 @Component({
     standalone: true,
     selector: 'bracket',
     templateUrl: 'bracket.component.html',
     styleUrls: ['bracket.component.scss'],
-    imports: [CommonModule, LoadingComponent, MatFormFieldModule, MatSelectModule, MatOptionModule, FormsModule]
+    imports: [CommonModule, LoadingComponent, MatFormFieldModule, MatSelectModule, MatOptionModule, FormsModule, HeaderComponent]
 })
 export class BracketComponent implements OnInit {
   @Input() type: string = '';

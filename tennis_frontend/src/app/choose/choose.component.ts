@@ -11,6 +11,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
 import { Tournament } from "../interfaces";
 import { LoadingComponent } from "../loading/loading.components";
+import { HeaderComponent } from "../header/header.component";
 
 @Component({
     standalone: true,
@@ -27,7 +28,8 @@ import { LoadingComponent } from "../loading/loading.components";
         RouterModule,
         MatRadioModule,
         FormsModule,
-        LoadingComponent
+        LoadingComponent,
+        HeaderComponent
     ]
 })
 export class ChooseTournament implements OnInit {

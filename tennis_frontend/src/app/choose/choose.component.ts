@@ -6,7 +6,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatTableDataSource, MatTableModule } from "@angular/material/table";
 import { MatPaginator, MatPaginatorModule } from "@angular/material/paginator";
 import { MatSort, MatSortModule } from "@angular/material/sort";
-import { Router, RouterModule } from '@angular/router';
+import { NavigationStart, Router, RouterModule } from '@angular/router';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
 import { Tournament } from "../interfaces";
@@ -42,12 +42,26 @@ export class ChooseTournament implements OnInit {
   loaded: boolean = false;
   loadingText: string = "Loading tournaments...";
   
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    this.router.events.subscribe((event) => {
+      // will set radio button to most recent bracketChoice if user comes back to choose tournaments page
+      if(event instanceof NavigationStart){
+        sessionStorage.setItem("bracketChoice", this.bracketChoice)
+      }
+    })
+  }
 
   /**
-   * Gets all tournaments from backend and then setup MatTable to display tournament names to user
+   * Gets all tournaments from backend, setup MatTable to display tournament names to user, and store bracketChoice in sessionStorage
    */
   async ngOnInit(): Promise<void> {
+    const bracketChoice=sessionStorage.getItem("bracketChoice");
+    if(bracketChoice){
+      this.bracketChoice=bracketChoice;
+    }
+    else{
+      sessionStorage.setItem("bracketChoice", "view");
+    }
     await this.getAllTournaments();
     this.loaded = true;
     this.dataSource.paginator = this.paginator;

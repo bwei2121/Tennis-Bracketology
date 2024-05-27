@@ -9,12 +9,16 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-<!-- [![Contributors][contributors-shield]][contributors-url]
+<div align="center">
+
+[![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![CC BY-NC-SA 4.0 License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url] -->
+[![LinkedIn][linkedin-shield]][linkedin-url]
+<!-- [![CC BY-NC-SA 4.0 License][license-shield]][license-url] -->
+
+</div>
 
 
 
@@ -48,6 +52,9 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
+      <a href="#latest-updates">Latest Updates</a>
+    </li>
+    <li>
       <a href="#about-the-project">About The Project</a>
       <ul>
         <li><a href="#built-with">Built With</a></li>
@@ -60,7 +67,14 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li>
+      <a href="#usage">Usage</a>
+      <ul>
+        <li><a href="#choose-tournament">Choose Tournament</a></li>
+        <li><a href="#view-bracket">View Bracket</a></li>
+        <li><a href="#predict-bracket">Predict Bracket</a></li>
+      </ul>
+    </li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -69,15 +83,19 @@
   </ol>
 </details>
 
+<!-- LATEST UPDATES -->
+## Latest Updates
+* View tournament bracket from any seeded player's perspective
+* View tournament bracket from the Quarterfinals and Onwards
+* Gives feedback on correctly and incorrectly predicted matches
+* Shows overall prediction rate for the tournament bracket
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
 View from a variety of tennis tournaments since 2023, predict a tournament bracket, and gain insights on your match predictions. I created this application to create a visual display for the tournaments being tracked on [Tennis Abstract](https://www.tennisabstract.com/). As well, I wanted to challenge myself in learning the skills needed on how to create a full-stack application and what to do before making an application public. See <a href="#usage">Usage</a> to understand how to use the application. I hope this application is helpful to you!
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 ### Built With
@@ -117,7 +135,7 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    ex. python3 -m pip install -r .\Tennis-Bracketology\tennis_backend\requirements.txt (Windows)
    ```
-4. Generate Django secret key for Tennis-Bracketology/tennis_backend/settings.py file. <br> Run Tennis-Bracketology/tennis_backend/secret_key.py for Django secret key. <br> Edit config.ini file with Django secret key. <br> View config.ini.example file for help.
+4. Generate Django secret key for Tennis-Bracketology/tennis_backend/settings.py file. <br> Run Tennis-Bracketology/tennis_backend/secret_key.py for Django secret key. <br> Create a config.ini file with Django secret key. <br> View config.ini.example file for help.
    ```sh
    ex. python3 .\secret_key.py (Windows)
    ```
@@ -143,20 +161,32 @@ This is an example of how to list things you need to use the software and how to
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-<h3><b>Choose Tournament</b></h3>
+### Choose Tournament
+<!-- <h3><b>Choose Tournament</b></h3> -->
 
 ![Choose Tournament Screenshot][choose-tournament-screenshot]
-* Choose from one of the many tournaments displayed. Recent tournaments are bolded for your convenience. Choose to view/predict a tournament bracket in the top right before clicking on a tournament.
+* Choose from one of the many tournaments displayed. Recent tournaments are bolded for your convenience. Choose to view/predict a tournament bracket using the buttons in the top right of the page before clicking on a tournament. You may also search for a tournament using the search bar at the top of the page.
 
-<h3><b>View Bracket</b></h3>
+### View Bracket
+<!-- <h3><b>View Bracket</b></h3> -->
 
 ![View Bracket Screenshot][view-bracket-screenshot]
-* View a tournament bracket. Depending on the status of the tournament, the bracket may only show first round matches, be partially filled, or be fully completed. On the tournament bracket, you can view the winner and score of each match that is completed.
+*View Full Tournament Bracket*
 
-<h3><b>Predict Bracket</b></h3>
+![View Bracket QF Screenshot][view-bracket-qf-screenshot]
+*View QF and Onwards Tournament Bracket*
+
+* View a tournament bracket. Depending on the status of the tournament, the bracket may only be showing first round matches, be partially filled, or be fully completed. On the tournament bracket, you can view the winner and score of each match that is completed. To view the bracket from the Quarterfinals and onwards, click the "Switch to QF+ View" button. Use the dropdown on the right side of the page to view the bracket from a seeded player's perspective.
+
+### Predict Bracket
+<!-- <h3><b>Predict Bracket</b></h3> -->
 
 ![Predict Bracket Screenshot][predict-bracket-screenshot]
-* Predict a tournament bracket. The bracket will only show first round matches so you can predict the rest of the bracket. To predict a match, click the container of the match in interest. A match predictor popup will show up, and you will be able to enter scores in the match prediction section. Reference the match information section if you need to be familiarized with the two players. Then, click the player button at the bottom that you believe will win the match, and click submit. To save your bracket, click the "Save Bracket" button on the right side of the bracket. Once changes are saved, you may come back to this bracket at any time and the bracket will be filled up to the point of the last save. Statistics about your predictions will be implemented in the future.
+*Predict Tournament Bracket*
+
+![Predict Match Screenshot][predict-match-screenshot]<br>*Predict Tournament Match*</br>
+
+* Predict a tournament bracket. The bracket will only show first round matches so you can predict the rest of the bracket. To predict a match, click the container of the match in interest. A match predictor popup will show up, and you will be able to enter scores in the match prediction section. Reference the match information section if you need to be familiarized with the two tennis players. Then, click the button at the bottom with the player that you believe will win the match, and click submit. To save your bracket, click the "Save Bracket" button on the right side of the page. Once changes are saved, you may come back to this bracket at any time, and the bracket will be filled up to the point of the last save. Refresh the page or come back when the tennis matches have finished to view if you correctly predicted the bracket. Predicted winners highlighted green are matches predicted correctly while predicted winners highlighted red and struck through are matches predicted incorrectly. The overall prediction rate for the bracket is displayed on the right hand side of the page. 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -166,11 +196,12 @@ This is an example of how to list things you need to use the software and how to
 ## Future improvements
 
 - [ ] More interactive brackets
+  - [x] View bracket by round or seeded player's point of view
   - [ ] Allow users to undo match predictions in brackets
-  - [ ] View bracket by round or top player's point of view
 - [ ] Statistics on user predictions
-  - [ ] Overall prediction rate
-  - [ ] Prediction rate of top players
+  - [x] Bracket prediction rate
+  - [ ] Overall prediction rate over many tournaments
+  - [ ] Prediction rate of seeded players
 - [ ] Incorporate dashboard into application
 
 
@@ -253,7 +284,9 @@ Big thanks to everything listed below!!!
 [product-screenshot]: images/screenshot.png
 [choose-tournament-screenshot]: images/choose_tournament.png
 [view-bracket-screenshot]: images/view_bracket.png
+[view-bracket-qf-screenshot]: images/view_bracket_qf.png
 [predict-bracket-screenshot]: images/predict_bracket.png
+[predict-match-screenshot]: images/predict_match.png
 [Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
 [Angular-url]: https://angular.io/
 [Djangoproject.com]: https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green

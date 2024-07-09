@@ -70,11 +70,19 @@ export class ChooseTournament implements OnInit {
 
   /**
    * Gets all tournaments from the backend, adds tournament titles to MatTable dataSource
+   * Store all tournaments into sessionStorage, easily display tournaments after initial retrieval of tournaments
    * @returns Promise<void>: tournaments titles will be loaded into MatTable dataSource
    */
   async getAllTournaments(): Promise<void> {
-    const data=(await axios.get('http://localhost:8000/tournaments')).data;
-    this.tournaments=JSON.parse(JSON.stringify(data))['tournaments'];
+    const tournaments=sessionStorage.getItem("tournaments");
+    if(tournaments){
+      this.tournaments=JSON.parse(tournaments);
+    }
+    else{
+      const data=(await axios.get('http://localhost:8000/tournaments')).data;
+      this.tournaments=JSON.parse(JSON.stringify(data))['tournaments'];
+      sessionStorage.setItem("tournaments", JSON.stringify(this.tournaments));
+    }
     this.dataSource=new MatTableDataSource(this.tournaments);
   }
 

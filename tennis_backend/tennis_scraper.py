@@ -2,8 +2,11 @@ import json
 import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-import datetime
 import math
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 
 # Gets the html on the URL page chosen by user
 # Returns page content on URL given by BeautifulSoup library
@@ -265,38 +268,21 @@ def getBracketInfo(url):
   matchList=getCompletedMatchResults(playerList, playersContent, highestRoundNumber)
   return (tournamentTitle, playerList, matchList)
 
-# Get all tournament brackets that are available to view from tennisabstract.com, recent tournaments are stored at beginning of array
+# Get all current tournament brackets that are available to view from tennisabstract.com
 # Returns array of tournament names and their urls
 def getAllTournaments():
-  URL = "https://www.tennisabstract.com/current/"
-  headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-  page = requests.get(URL, headers=headers)
-  content = BeautifulSoup(page.content, "html.parser")
-  recentTournaments=[]
-  currentTournaments=[]
-  for row in content.body.find('table').find_all('tr'):
-    rowData=row.find_all('td')
-    if(len(rowData)>=3):
-      urlData=rowData[1]
-      if(urlData.a):
-        url=urlData.contents[0].get('href')
-        if(not (url.startswith('2022') or url=='favicon.ico' or url=='/')):
-          title=parsedTitle(url.replace('.html', ''))
-          updateTime=rowData[2].contents[0]
-          index=updateTime.find(' ')
-          updateTime=updateTime[0:index]
-          updateTimeArray=updateTime.split('-')
-          if(len(updateTimeArray)==3):
-            year=int(updateTimeArray[0])
-            month=int(updateTimeArray[1])
-            day=int(updateTimeArray[2])
-            tournamentDate=datetime.datetime(year, month, day)
-            currentDate=datetime.datetime.now()
-            if(currentDate-tournamentDate<=datetime.timedelta(days=7)): # finding recent tournaments
-              recentTournaments.append({'title': title, 'url': url, 'recent': True})
-            else:
-              currentTournaments.append({'title': title, 'url': url, 'recent': False})
-  tournaments=recentTournaments+currentTournaments
+  tournaments=[]
+  options=webdriver.ChromeOptions()
+  options.add_argument("--headless")
+  driver=webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+  URL="https://www.tennisabstract.com/"
+  driver.get(URL)
+  allTournaments=driver.find_elements(By.LINK_TEXT, "Results and Forecasts")
+  for tournament in allTournaments:
+    url=tournament.get_attribute("href").removeprefix("http://www.tennisabstract.com/current/")
+    title=parsedTitle(url.replace('.html', ''))
+    tournaments.append({'title': title, 'url': url})
+  driver.quit()
   return tournaments
 
 # Converts title into a readable title for user

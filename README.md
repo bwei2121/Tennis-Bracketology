@@ -32,7 +32,7 @@
 <h3 align="center">Tennis-Bracketology</h3>
 
   <p align="center">
-    View from a variety of tennis tournaments since 2023, predict a tournament bracket, and gain insights for your match predictions.
+    View from the current professional tennis tournaments, predict a tournament bracket, and gain insights for your match predictions.
     <br />
     <!-- <a href="https://github.com/bwei2121/Tennis-Bracketology"><strong>Explore the docs »</strong></a> -->
     <!-- <br />
@@ -95,7 +95,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-View from a variety of tennis tournaments since 2023, predict a tournament bracket, and gain insights on your match predictions. I created this application to create a visual display for the tournaments being tracked on [Tennis Abstract](https://www.tennisabstract.com/). As well, I wanted to challenge myself in learning the skills needed on how to create a full-stack application and what to do before making an application public. See <a href="#usage">Usage</a> to understand how to use the application. I hope this application is helpful to you!
+View from the current professional tennis tournaments, predict a tournament bracket, and gain insights on your match predictions. I created this application to create a visual display for the tournaments being tracked on [Tennis Abstract](https://www.tennisabstract.com/). As well, I wanted to challenge myself in learning the skills needed on how to create a full-stack application and what to do before making an application public. See <a href="#usage">Usage</a> to understand how to use the application. I hope this application is helpful to you!
 
 
 ### Built With
@@ -165,7 +165,7 @@ This is an example of how to list things you need to use the software and how to
 <!-- <h3><b>Choose Tournament</b></h3> -->
 
 ![Choose Tournament Screenshot][choose-tournament-screenshot]
-* Choose from one of the many tournaments displayed. Recent tournaments are bolded for your convenience. Choose to view/predict a tournament bracket using the buttons in the top right of the page before clicking on a tournament. You may also search for a tournament using the search bar at the top of the page.
+* Choose from one of the current tournaments displayed. Choose to view/predict a tournament bracket using the buttons in the top right of the page before clicking on a tournament. You may also search for a tournament using the search bar at the top of the page.
 
 ### View Bracket
 <!-- <h3><b>View Bracket</b></h3> -->

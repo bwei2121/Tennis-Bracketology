@@ -26,6 +26,8 @@ export class CreditsComponent {
     { title: "djangorestframework", licenseName: "BSD License", copyright: "Copyright © 2011-present, Encode OSS Ltd. All rights reserved.", licenseText: "BSD"},
     { title: "requests", licenseName: "Apache Software License (Apache 2.0)", copyright: "Copyright 2019 Kenneth Reitz", licenseText: "Apache" },
     { title: "beautifulsoup4", licenseName: "MIT License", copyright: "Copyright (c) 2004-2022 Leonard Richardson", licenseText: "MIT" },
+    { title: "Selenium", licenseName: "Apache Software License (Apache 2.0)", copyright: "Copyright (c) 2024 Software Freedom Conservancy All Rights Reserved", licenseText: "Apache" },
+    { title: "webdriver-manager", licenseName: "Apache Software License (Apache 2.0)", copyright: "Copyright (c) Sergey Pirogov", licenseText: "Apache" },
     { title: "Tennis Abstract (https://www.tennisabstract.com/)", licenseName: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License", copyright: "Copyright (c) Jeff Sackmann", licenseText: "CC BY-NC-SA" },
     { title: "Python", licenseName: "Python Software Foundation (PSF) License", copyright: "Copyright (c) 2001-present Python Software Foundation; All Rights Reserved", licenseText: "PSF" },
     { title: "Best-README-Template", licenseName: "MIT License", copyright: "Copyright (c) 2021 Othneil Drew", licenseText: "MIT" }
